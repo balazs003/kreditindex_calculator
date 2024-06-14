@@ -27,9 +27,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    indexPanel = ResultPanel(name: 'Kreditindex', initialValue: 0.0, panelColor: Colors.blueAccent, key: indexPanelKey);
-    weightedPanel = ResultPanel(name: 'Súlyozott kreditindex', initialValue: 0.0, panelColor: Colors.deepOrangeAccent, key: weightedPanelKey);
-    averagePanel = ResultPanel(name: 'Átlag', initialValue: 0.0, panelColor: Colors.redAccent, key: averagePanelKey);
+    indexPanel = ResultPanel(
+        name: 'Kreditindex',
+        initialValue: 0.0,
+        panelColor: Colors.blueAccent,
+        key: indexPanelKey);
+    weightedPanel = ResultPanel(
+        name: 'Súlyozott kreditindex',
+        initialValue: 0.0,
+        panelColor: Colors.deepOrangeAccent,
+        key: weightedPanelKey);
+    averagePanel = ResultPanel(
+        name: 'Átlag',
+        initialValue: 0.0,
+        panelColor: Colors.redAccent,
+        key: averagePanelKey);
   }
 
   void reCalculateCreditIndex(int creditDivisionNumber) {
@@ -64,7 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
       sum += subject.weight * subject.grade;
     }
 
-    double weightedCreditIndex = _creditCount == 0 ? 0.0 : sum / _creditCount.toDouble();
+    double weightedCreditIndex =
+        _creditCount == 0 ? 0.0 : sum / _creditCount.toDouble();
 
     setState(() {
       weightedPanelKey.currentState?.updateValue(weightedCreditIndex);
@@ -72,7 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void reCalculateAllData() {
-    int creditDivisionNumber = context.read<CreditDivisionNotifier>().creditDivisionNumber;
+    int creditDivisionNumber =
+        context.read<CreditDivisionNotifier>().creditDivisionNumber;
     reCalculateCreditIndex(creditDivisionNumber);
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
@@ -80,7 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    int creditDivisionNumber = context.watch<CreditDivisionNotifier>().creditDivisionNumber;
+    int creditDivisionNumber =
+        context.watch<CreditDivisionNotifier>().creditDivisionNumber;
 
     // Recalculate the credit index whenever the credit division number changes
     reCalculateCreditIndex(creditDivisionNumber);
@@ -128,7 +143,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     Subject subject = subjectList.subjects[index];
                     return ListTile(
                       title: Text(subject.name),
-                      subtitle: Text("Kredit: ${subject.weight}, Jegy: ${subject.grade}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              "Kredit: ${subject.weight}, Jegy: ${subject.grade}"),
+                          Slider(
+                            value: subject.grade.toDouble(),
+                            min: 1,
+                            max: 5,
+                            divisions: 4,
+                            label: subject.grade.toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                subject.setGrade(value.toInt());
+                                reCalculateAllData();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
@@ -161,7 +195,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showAddSubjectDialog(BuildContext context) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
-    TextEditingController gradeController = TextEditingController();
 
     return showDialog(
       context: context,
@@ -184,11 +217,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 keyboardType: TextInputType.number,
               ),
-              TextField(
-                controller: gradeController,
-                decoration: const InputDecoration(labelText: 'Jegy'),
-                keyboardType: TextInputType.number,
-              ),
             ],
           ),
           actions: [
@@ -202,10 +230,11 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 String name = nameController.text.trim();
                 int weight = int.tryParse(weightController.text.trim()) ?? 0;
-                int grade = int.tryParse(gradeController.text.trim()) ?? 0;
+                int grade = 5;
 
-                if (name.isNotEmpty && weight > 0 && grade > 0 && grade <= 5) {
-                  Subject newSubject = Subject(newName: name, newWeight: weight, newGrade: grade);
+                if (name.isNotEmpty && weight > 0) {
+                  Subject newSubject = Subject(
+                      newName: name, newWeight: weight, newGrade: grade);
                   setState(() {
                     subjectList.addSubject(newSubject);
                     _creditCount += weight;
@@ -215,7 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('A kredit és jegy mezőkben helyes számérték kell szerepeljen!'),
+                      content: Text(
+                          'A kredit és jegy mezőkben helyes számérték kell szerepeljen!'),
                     ),
                   );
                 }
@@ -234,12 +264,12 @@ class ResultPanel extends StatefulWidget {
   late double initialValue;
   final Color panelColor;
 
-  ResultPanel({
-    Key? key,
-    required this.name,
-    required this.initialValue,
-    required this.panelColor
-  }) : super(key: key);
+  ResultPanel(
+      {Key? key,
+      required this.name,
+      required this.initialValue,
+      required this.panelColor})
+      : super(key: key);
 
   @override
   _ResultPanelState createState() => _ResultPanelState();
