@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'credit_division_notifier.dart';
 
@@ -113,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
 
-    //adatok mentese minden ujraszamolas utan
+    //Saving data after every recalculation
     subjectList.saveSubjectsToPrefs();
   }
 
@@ -214,11 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             size: 30,
                           ),
                           onPressed: () {
-                            setState(() {
-                              _creditCount -= subject.weight;
-                              subjectList.removeSubject(subject);
-                              reCalculateAllData();
-                            });
+                            _showDeletionReassuranceDialog(context, subject);
                           },
                         ),
                       ),
@@ -237,6 +232,41 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showDeletionReassuranceDialog(BuildContext context, Subject subject) async {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Biztosan törlöd?"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _creditCount -= subject.weight;
+                      subjectList.removeSubject(subject);
+                      reCalculateAllData();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Igen',
+                    style: TextStyle(
+                      color: Colors.red
+                    ),
+                  )
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse')
+              )
+            ],
+          );
+        }
     );
   }
 
