@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'credit_division_notifier.dart';
 
@@ -24,6 +25,11 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<_ResultPanelState> averagePanelKey = GlobalKey();
   final GlobalKey<_ResultPanelState> weightedPanelKey = GlobalKey();
 
+  //Switch states for result cards
+  bool _showCreditIndexCard = true;
+  bool _showWeightedCreditIndexCard = true;
+  bool _showAverageCard = true;
+
   @override
   void initState() {
     super.initState();
@@ -46,10 +52,18 @@ class _MyHomePageState extends State<MyHomePage> {
         panelColor: Colors.redAccent,
         key: averagePanelKey);
 
-    loadSavedData();
+    loadSavedSubjectData();
+    loadSavedCardVisibilityData();
   }
 
-  void loadSavedData() async {
+  void loadSavedCardVisibilityData() async {
+    var prefs = await SharedPreferences.getInstance();
+    _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
+    _showWeightedCreditIndexCard = prefs.getBool('weightedCreditIndexVisible') ?? true;
+    _showAverageCard = prefs.getBool('averageVisible') ?? true;
+  }
+
+  void loadSavedSubjectData() async {
     await subjectList.loadSubjectsFromPrefs();
     setState(() {
       _creditCount = subjectList.calculateTotalWeight();
@@ -173,12 +187,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
-                  indexPanel,
-                  const SizedBox(height: 10),
-                  weightedPanel,
-                  const SizedBox(height: 10),
-                  averagePanel,
-                  const SizedBox(height: 50),
+
+                  //if creditIndex is set to visible
+                  if(_showCreditIndexCard) indexPanel,
+                  if(_showCreditIndexCard) const SizedBox(height: 10),
+
+                  //if weightedCreditIndex is set to visible
+                  if(_showWeightedCreditIndexCard) weightedPanel,
+                  if(_showWeightedCreditIndexCard) const SizedBox(height: 10),
+
+                  //if average is set to visible
+                  if(_showAverageCard) averagePanel,
+                  if(_showAverageCard) const SizedBox(height: 50),
                   const Text(
                     "Tantárgyak:",
                     style: TextStyle(fontSize: 18),
