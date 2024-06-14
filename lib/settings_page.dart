@@ -195,9 +195,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                       ElevatedButton(
-                          onPressed: () {
+                          //this button is only enabled when the subject list is not empty
+                          onPressed: subjectList.subjects.isNotEmpty ? () {
                             _showDeleteAllSubjectsDialog(context);
-                          },
+                          } : null,
                           child: const Text(
                             'TÖRLÉS',
                             style: TextStyle(
