@@ -43,6 +43,14 @@ class _MyHomePageState extends State<MyHomePage> {
         panelColor: Colors.redAccent,
         key: averagePanelKey);
   }
+  
+  Color getSubjectColor(bool sure){
+    return sure ? Colors.green : Colors.orangeAccent;
+  }
+  
+  IconData getSubjectIcon(bool sure){
+    return sure ? Icons.bookmark_added : Icons.bookmark_remove;
+  }
 
   void reCalculateCreditIndex(int creditDivisionNumber) {
     int sum = 0;
@@ -146,38 +154,59 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemCount: subjectList.subjects.length,
                   itemBuilder: (BuildContext context, int index) {
                     Subject subject = subjectList.subjects[index];
-                    return ListTile(
-                      title: Text(subject.name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              "Kredit: ${subject.weight}, Jegy: ${subject.grade}"),
-                          Slider(
-                            value: subject.grade.toDouble(),
-                            min: 1,
-                            max: 5,
-                            divisions: 4,
-                            label: subject.grade.toString(),
-                            onChanged: (double value) {
-                              setState(() {
-                                subject.setGrade(value.toInt());
-                                reCalculateAllData();
-                              });
+                    return Card(
+                      elevation: 3,
+                      child: ListTile(
+                        title: Text(
+                          subject.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                        textColor: getSubjectColor(subject.sure),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
+                                style: const TextStyle(
+                                  fontSize: 18
+                                ),
+                            ),
+                            Slider(
+                              value: subject.grade.toDouble(),
+                              min: 1,
+                              max: 5,
+                              divisions: 4,
+                              label: subject.grade.toString(),
+                              onChanged: (double value) {
+                                setState(() {
+                                  subject.setGrade(value.toInt());
+                                  reCalculateAllData();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        leading: IconButton(
+                          icon: Icon(getSubjectIcon(subject.sure), size: 30, color: getSubjectColor(subject.sure)),
+                          onPressed: () {
+                            setState(() {
+                              subject.setSure();
+                            });
                             },
                           ),
-                        ],
-                      ),
-                      leading: const Icon(Icons.bookmark_added, size: 30,),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            _creditCount -= subject.weight;
-                            subjectList.removeSubject(subject);
-                            reCalculateAllData();
-                          });
-                        },
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red, size: 30,),
+                          onPressed: () {
+                            setState(() {
+                              _creditCount -= subject.weight;
+                              subjectList.removeSubject(subject);
+                              reCalculateAllData();
+                            });
+                          },
+                        ),
                       ),
                     );
                   },

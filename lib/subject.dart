@@ -4,6 +4,7 @@ class Subject extends ChangeNotifier {
   late String name;
   late int weight;
   late int grade;
+  bool sure = true;
 
   Subject({required String newName, required int newWeight, required int newGrade}){
     name = newName;
@@ -13,6 +14,11 @@ class Subject extends ChangeNotifier {
 
   void setGrade(int newGrade){
     grade = newGrade;
+    notifyListeners();
+  }
+
+  void setSure(){
+    sure = !sure;
     notifyListeners();
   }
 }
