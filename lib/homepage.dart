@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'credit_division_notifier.dart';
 
@@ -259,51 +260,65 @@ class _MyHomePageState extends State<MyHomePage> {
                     itemCount: subjectList.subjects.length,
                     itemBuilder: (BuildContext context, int index) {
                       Subject subject = subjectList.subjects[index];
-                      return Card(
-                        elevation: 3,
-                        child: ListTile(
-                          title: Text(
-                            subject.name,
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          textColor: getSubjectColor(subject.sure),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              Slider(
-                                value: subject.grade.toDouble(),
-                                min: 1,
-                                max: 5,
-                                divisions: 4,
-                                label: subject.grade.toString(),
-                                onChanged: (double value) {
-                                  setState(() {
-                                    subject.setGrade(value.toInt());
-                                    reCalculateAllData();
-                                  });
+                      return Slidable(
+                        key: Key(subject.name),
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                                onPressed: (BuildContext context) {
+                                  _showDeletionReassuranceDialog(context, subject);
                                 },
-                                activeColor: getSubjectColor(subject.sure),
-                              ),
-                            ],
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: 'Törlés',
+                            )
+                          ],
+                        ),
+                        child: Card(
+                          elevation: 3,
+                          child: ListTile(
+                            title: Text(
+                              subject.name,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            textColor: getSubjectColor(subject.sure),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                                Slider(
+                                  value: subject.grade.toDouble(),
+                                  min: 1,
+                                  max: 5,
+                                  divisions: 4,
+                                  label: subject.grade.toString(),
+                                  onChanged: (double value) {
+                                    setState(() {
+                                      subject.setGrade(value.toInt());
+                                      reCalculateAllData();
+                                    });
+                                  },
+                                  activeColor: getSubjectColor(subject.sure),
+                                ),
+                              ],
+                            ),
+                            leading: IconButton(
+                              icon: Icon(getSubjectIcon(subject.sure),
+                                  size: 30, color: getSubjectColor(subject.sure)),
+                              onPressed: () {
+                                setState(() {
+                                  subject.setSure();
+                                });
+                              },
+                              tooltip: 'Biztos vagyok benne',
+                            ),
                           ),
-                          leading: IconButton(
-                            icon: Icon(getSubjectIcon(subject.sure),
-                                size: 30, color: getSubjectColor(subject.sure)),
-                            onPressed: () {
-                              setState(() {
-                                subject.setSure();
-                              });
-                            },
-                            tooltip: 'Biztos vagyok benne',
-                          ),
-                          onLongPress: () {
-                            _showDeletionReassuranceDialog(context, subject);
-                          },
                         ),
                       );
                     },

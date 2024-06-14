@@ -121,7 +121,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'Ha egy tárgyat törölni szeretnénk, akkor tartsuk nyomva a kártyáját kis ideig, majd megejelnik egy ablak, ahol megerősíthetjük a törlést. Ha sok tárgyat szeretnénk törölni, ezek együttes törlését elvégezhetjük a beállítások menüből.',
+                'Ha egy tárgyat törölni szeretnénk, akkor húzzuk balra a kártyáját, majd a piros mezőre nyomva megjelenik egy ablak, ahol megerősíthetjük a törlést. Ha sok tárgyat szeretnénk törölni, ezek együttes törlését elvégezhetjük a beállítások menüből.',
                 style: TextStyle(
                   fontSize: 17,
                 ),
