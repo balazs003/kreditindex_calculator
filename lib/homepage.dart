@@ -42,20 +42,30 @@ class _MyHomePageState extends State<MyHomePage> {
         initialValue: 0.0,
         panelColor: Colors.redAccent,
         key: averagePanelKey);
+
+    loadSavedData();
   }
-  
-  Color getSubjectColor(bool sure){
+
+  void loadSavedData() async {
+    await subjectList.loadSubjectsFromPrefs();
+    setState(() {
+      _creditCount = subjectList.calculateTotalWeight();
+      reCalculateAllData();
+    });
+  }
+
+  Color getSubjectColor(bool sure) {
     return sure ? Colors.green : Colors.orangeAccent;
   }
-  
-  IconData getSubjectIcon(bool sure){
+
+  IconData getSubjectIcon(bool sure) {
     return sure ? Icons.bookmark_added : Icons.bookmark_remove;
   }
 
   void reCalculateCreditIndex(int creditDivisionNumber) {
     int sum = 0;
     for (var subject in subjectList.subjects) {
-      if(subject.grade > 1) {
+      if (subject.grade > 1) {
         sum += subject.weight * subject.grade;
       }
     }
@@ -83,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void reCalculateWeightedCreditIndex() {
     int sum = 0;
     for (var subject in subjectList.subjects) {
-      if(subject.grade > 1) {
+      if (subject.grade > 1) {
         sum += subject.weight * subject.grade;
       }
     }
@@ -102,6 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
     reCalculateCreditIndex(creditDivisionNumber);
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
+
+    //adatok mentese minden ujraszamolas utan
+    subjectList.saveSubjectsToPrefs();
   }
 
   @override
@@ -160,19 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         title: Text(
                           subject.name,
                           style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
-                          ),
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         textColor: getSubjectColor(subject.sure),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
-                                style: const TextStyle(
-                                  fontSize: 18
-                                ),
+                              "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
+                              style: const TextStyle(fontSize: 18),
                             ),
                             Slider(
                               value: subject.grade.toDouble(),
@@ -190,15 +199,20 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                         leading: IconButton(
-                          icon: Icon(getSubjectIcon(subject.sure), size: 30, color: getSubjectColor(subject.sure)),
+                          icon: Icon(getSubjectIcon(subject.sure),
+                              size: 30, color: getSubjectColor(subject.sure)),
                           onPressed: () {
                             setState(() {
                               subject.setSure();
                             });
-                            },
-                          ),
+                          },
+                        ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red, size: 30,),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                            size: 30,
+                          ),
                           onPressed: () {
                             setState(() {
                               _creditCount -= subject.weight;
