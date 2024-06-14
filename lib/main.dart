@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CreditDivisionNotifier()),
+        ChangeNotifierProvider(create: (context) => SubjectList())
       ],
       child: MaterialApp(
         title: 'ÁtlagoSCH',

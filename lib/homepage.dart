@@ -16,7 +16,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _creditCount = 0;
   int _finalCreditCount = 0;
-  SubjectList subjectList = SubjectList();
+  late SubjectList subjectList;
   late ResultPanel indexPanel;
   late ResultPanel averagePanel;
   late ResultPanel weightedPanel;
@@ -27,6 +27,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    subjectList = Provider.of<SubjectList>(context, listen: false);
+
     indexPanel = ResultPanel(
         name: 'Kreditindex',
         initialValue: 0.0,

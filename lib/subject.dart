@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Subject {
@@ -37,16 +38,18 @@ class Subject {
   }
 }
 
-class SubjectList {
+class SubjectList extends ChangeNotifier {
   List<Subject> subjects = [];
 
   void addSubject(Subject subject){
     subjects.add(subject);
     subject.saveToPrefs();
+    notifyListeners();
   }
 
   void removeSubject(Subject subject) {
     subjects.remove(subject);
+    notifyListeners();
   }
 
   Future<void> saveSubjectsToPrefs() async {
@@ -66,6 +69,7 @@ class SubjectList {
         subjects.add(subject);
       }
     }
+    notifyListeners();
   }
 
   int calculateTotalWeight(){
