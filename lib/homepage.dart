@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,16 +18,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _creditCount = 0;
   int _finalCreditCount = 0;
+
+  //earlier creditIndex
+  double _earlierCreditIndex = 0.0;
+
   late SubjectList subjectList;
   late ResultPanel indexPanel;
+  late ResultPanel summarizedIndexPanel;
   late ResultPanel averagePanel;
   late ResultPanel weightedPanel;
   final GlobalKey<_ResultPanelState> indexPanelKey = GlobalKey();
+  final GlobalKey<_ResultPanelState> summarizedIndexPanelKey = GlobalKey();
   final GlobalKey<_ResultPanelState> averagePanelKey = GlobalKey();
   final GlobalKey<_ResultPanelState> weightedPanelKey = GlobalKey();
 
   //Switch states for result cards
   bool _showCreditIndexCard = true;
+  bool _showSummarizedCreditIndexCard = true;
   bool _showWeightedCreditIndexCard = true;
   bool _showAverageCard = true;
 
@@ -41,6 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
         initialValue: 0.0,
         panelColor: Colors.blueAccent,
         key: indexPanelKey);
+    summarizedIndexPanel = ClickableResultPanel(
+      name: 'Kreditindex a korábbi félévvel együtt',
+      initialValue: 0.0,
+      panelColor: Colors.deepPurpleAccent,
+      key: summarizedIndexPanelKey,
+      onTap: () => _showSetEarlierCreditIndex(context),
+    );
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
         initialValue: 0.0,
@@ -54,11 +69,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
     loadSavedSubjectData();
     loadSavedCardVisibilityData();
+    loadEarlierCreditIndex();
   }
 
   void loadSavedCardVisibilityData() async {
     var prefs = await SharedPreferences.getInstance();
     _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
+    _showSummarizedCreditIndexCard = prefs.getBool('summarizedCreditIndexVisible') ?? true;
     _showWeightedCreditIndexCard = prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
   }
@@ -133,10 +150,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void reCalculateSummarizedCreditIndex(int creditDivisionNumber) {
+    int sum = 0;
+    for (var subject in subjectList.subjects) {
+      if (subject.grade > 1) {
+        sum += subject.weight * subject.grade;
+      }
+    }
+
+    double creditIndex = sum / creditDivisionNumber.toDouble();
+
+    double summarizedCreditIndex = (creditIndex + _earlierCreditIndex) / 2.0;
+
+    setState(() {
+      summarizedIndexPanelKey.currentState?.updateValue(summarizedCreditIndex);
+    });
+  }
+
   void reCalculateAllData() {
     int creditDivisionNumber =
         context.read<CreditDivisionNotifier>().creditDivisionNumber;
     reCalculateCreditIndex(creditDivisionNumber);
+    reCalculateSummarizedCreditIndex(creditDivisionNumber);
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
 
@@ -154,6 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //Recalculate the credit index and all data when going back from settings
     reCalculateCreditIndex(creditDivisionNumber);
+    reCalculateSummarizedCreditIndex(creditDivisionNumber);
     reCalculateAllData();
 
     return Scaffold(
@@ -197,6 +233,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   //if creditIndex is set to visible
                   if(_showCreditIndexCard) indexPanel,
                   if(_showCreditIndexCard) const SizedBox(height: 10),
+
+                  //if summarizedCreditIndex is set to visible
+                  if(_showSummarizedCreditIndexCard) summarizedIndexPanel,
+                  if(_showSummarizedCreditIndexCard) const SizedBox(height: 10),
 
                   //if weightedCreditIndex is set to visible
                   if(_showWeightedCreditIndexCard) weightedPanel,
@@ -391,6 +431,69 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _showSetEarlierCreditIndex(BuildContext context) async {
+    TextEditingController earlierCreditController = TextEditingController(text: _earlierCreditIndex.toString());
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Előző félévben a kreditindexed:"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: earlierCreditController,
+                decoration: InputDecoration(
+                  labelText: 'Korábbi kreditindex',
+                  errorText: _earlierCreditIndex <= 0 ? '0-nál nagyobb érték kell' : null,
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    double parsedValue = double.tryParse(value) ?? 0.0;
+                    setState(() {
+                      _earlierCreditIndex = parsedValue;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Mégse'),
+            ),
+            TextButton(
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setDouble('earlierCreditIndex', _earlierCreditIndex);
+                setState(() {
+                  reCalculateAllData();
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Mentés',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void loadEarlierCreditIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _earlierCreditIndex = prefs.getDouble('earlierCreditIndex') ?? 0.0;
+    });
+  }
+
+
   bool nameIsUnique(String name) {
     name = name.trim();
     for(var subject in subjectList.subjects){
@@ -413,6 +516,8 @@ class ResultPanel extends StatefulWidget {
       required this.initialValue,
       required this.panelColor})
       : super(key: key);
+
+  get onTap => null;
 
   @override
   _ResultPanelState createState() => _ResultPanelState();
@@ -470,6 +575,67 @@ class _ResultPanelState extends State<ResultPanel> {
             textAlign: TextAlign.center,
           )
         ],
+      ),
+    );
+  }
+}
+
+class ClickableResultPanel extends ResultPanel {
+  final VoidCallback onTap;
+
+  ClickableResultPanel({
+    Key? key,
+    required String name,
+    required double initialValue,
+    required Color panelColor,
+    required this.onTap,
+  }) : super(key: key, name: name, initialValue: initialValue, panelColor: panelColor);
+
+  @override
+  _ClickableResultPanelState createState() => _ClickableResultPanelState();
+}
+
+class _ClickableResultPanelState extends _ResultPanelState {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: widget.onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: widget.panelColor,
+          borderRadius: BorderRadius.circular(15.0),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10.0,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              value.toStringAsFixed(2),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 30.0,
+              ),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       ),
     );
   }

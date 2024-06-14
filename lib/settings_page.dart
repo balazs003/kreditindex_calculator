@@ -20,6 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   //Switch states for result cards
   bool _showCreditIndexCard = true;
+  bool _showSummarizedCreditIndexCard = true;
   bool _showWeightedCreditIndexCard = true;
   bool _showAverageCard = true;
 
@@ -47,6 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     //loading switch states
     _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
+    _showSummarizedCreditIndexCard = prefs.getBool('summarizedCreditIndexVisible') ?? true;
     _showWeightedCreditIndexCard = prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
   }
@@ -68,6 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     //saving switch preferences
     await prefs.setBool('creditIndexVisible', _showCreditIndexCard);
+    await prefs.setBool('summarizedCreditIndexVisible', _showSummarizedCreditIndexCard);
     await prefs.setBool('weightedCreditIndexVisible', _showWeightedCreditIndexCard);
     await prefs.setBool('averageVisible', _showAverageCard);
   }
@@ -152,6 +155,16 @@ class _SettingsPageState extends State<SettingsPage> {
                         onChanged: (value) {
                           setState(() {
                             _showCreditIndexCard = value;
+                            _saveSettingsData();
+                          });
+                        },
+                      ),
+                      SwitchListTile(
+                        title: const Text('Kreditindex az előző félévvel együtt'),
+                        value: _showSummarizedCreditIndexCard,
+                        onChanged: (value) {
+                          setState(() {
+                            _showSummarizedCreditIndexCard = value;
                             _saveSettingsData();
                           });
                         },

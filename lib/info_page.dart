@@ -58,6 +58,20 @@ class InfoPage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               Text(
+                'Kreditindex a korábbi félévvel együtt',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez a kártya abban különbözik a többitől, hogy kattintható, ekkor megjelenik egy párbeszédablak, amiben beállíthatjuk a korábbi félévben megszerzett kreditindexünket. A Mentés gombra kattintva a program megjegyzi ezt az értéket, de bármikor módosíthatjuk a kártyára kattintva.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
                 'Új tárgy felvétele',
                 style: TextStyle(
                     fontSize: 20,
@@ -122,6 +136,20 @@ class InfoPage extends StatelessWidget {
               ),
               Text(
                 'A beállítások menüben megadhatjuk, hogy kreditérték számításnál mennyivel osszon a program, például kollégiumba bekerüléshez, vagy ösztöndíjhez szükséges átlag számításakor ez hasznos lehet.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
+                'Alkalmazás verziója',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                '1.0.0.0',
                 style: TextStyle(
                   fontSize: 17,
                 ),
