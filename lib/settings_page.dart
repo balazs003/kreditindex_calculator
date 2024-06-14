@@ -71,44 +71,80 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Ennyivel osztunk a kreditindex számításakor:',
-                errorText: _creditDivisionNumber <= 0 ? '0-nál nagyobb érték kell' : null,
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-              ], // Only numbers can be entered
-              onChanged: (value) {
-                setState(() {
-                  // Update the errorText dynamically based on the current input
-                  if (value.isNotEmpty) {
-                    int parsedValue = int.tryParse(value) ?? 0;
-                    _creditDivisionNumber = parsedValue;
-                    context.read<CreditDivisionNotifier>().setCreditDivisionNumber(_creditDivisionNumber);
-                  }
-                });
-              },
-            ),
-            const Text('Összes tantárgy törlése'),
-            ElevatedButton(
-                onPressed: () {
-                  _showDeleteAllSubjectsDialog(context);
-                },
-                child: const Text(
-                  'TÖRLÉS',
-                  style: TextStyle(
-                    color: Colors.red,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Kreditindex számításnál használt osztó értéke:',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          errorText: _creditDivisionNumber <= 0 ? '0-nál nagyobb érték kell' : null,
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly,
+                        ], // Only numbers can be entered
+                        onChanged: (value) {
+                          setState(() {
+                            // Update the errorText dynamically based on the current input
+                            if (value.isNotEmpty) {
+                              int parsedValue = int.tryParse(value) ?? 0;
+                              _creditDivisionNumber = parsedValue;
+                              context.read<CreditDivisionNotifier>().setCreditDivisionNumber(_creditDivisionNumber);
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                )
-            )
-          ],
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Összes tantárgy törlése',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            _showDeleteAllSubjectsDialog(context);
+                          },
+                          child: const Text(
+                            'TÖRLÉS',
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          )
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
