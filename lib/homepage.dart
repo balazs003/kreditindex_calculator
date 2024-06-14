@@ -166,6 +166,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.pushReplacementNamed(context, '/settings');
             },
             icon: const Icon(Icons.settings),
+          ),
+          IconButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/info');
+              },
+              icon: const Icon(Icons.info)
           )
         ],
       ),
@@ -238,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     reCalculateAllData();
                                   });
                                 },
+                                activeColor: getSubjectColor(subject.sure),
                               ),
                             ],
                           ),
@@ -249,6 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 subject.setSure();
                               });
                             },
+                            tooltip: 'Biztos vagyok benne',
                           ),
                           onLongPress: () {
                             _showDeletionReassuranceDialog(context, subject);

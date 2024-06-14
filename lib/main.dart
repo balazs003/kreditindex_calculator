@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/credit_division_notifier.dart';
+import 'package:kreditindex_calculator/info_page.dart';
 import 'package:kreditindex_calculator/settings_page.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,8 @@ class MyApp extends StatelessWidget {
         ),
         home: const MyHomePage(title: 'Kezdőlap'),
         routes: {
-          '/settings': (context) => const SettingsPage()
+          '/settings': (context) => const SettingsPage(),
+          '/info': (context) => InfoPage(),
         },
       ),
     );
