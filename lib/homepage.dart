@@ -126,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
 
+    _creditCount = subjectList.calculateTotalWeight();
     reCalculateFinalCreditCount();
 
     //Saving data after every recalculation
@@ -139,6 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //Recalculate the credit index whenever the credit division number changes
     reCalculateCreditIndex(creditDivisionNumber);
+    reCalculateAllData();
 
     return Scaffold(
       appBar: AppBar(
@@ -147,101 +149,103 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/settings');
+              Navigator.pushReplacementNamed(context, '/settings');
             },
             icon: const Icon(Icons.settings),
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "Felvett kreditek száma: $_creditCount",
-                  style: const TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Teljesített kreditek száma: $_finalCreditCount",
-                  style: const TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                indexPanel,
-                const SizedBox(height: 10),
-                weightedPanel,
-                const SizedBox(height: 10),
-                averagePanel,
-                const SizedBox(height: 50),
-                const Text(
-                  "Tantárgyak:",
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: subjectList.subjects.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Subject subject = subjectList.subjects[index];
-                    return Card(
-                      elevation: 3,
-                      child: ListTile(
-                        title: Text(
-                          subject.name,
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        textColor: getSubjectColor(subject.sure),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            Slider(
-                              value: subject.grade.toDouble(),
-                              min: 1,
-                              max: 5,
-                              divisions: 4,
-                              label: subject.grade.toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  subject.setGrade(value.toInt());
-                                  reCalculateAllData();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        leading: IconButton(
-                          icon: Icon(getSubjectIcon(subject.sure),
-                              size: 30, color: getSubjectColor(subject.sure)),
-                          onPressed: () {
-                            setState(() {
-                              subject.setSure();
-                            });
+      body: Consumer<SubjectList>(
+        builder: (context, subjectList, child) => SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "Felvett kreditek száma: $_creditCount",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Teljesített kreditek száma: $_finalCreditCount",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  indexPanel,
+                  const SizedBox(height: 10),
+                  weightedPanel,
+                  const SizedBox(height: 10),
+                  averagePanel,
+                  const SizedBox(height: 50),
+                  const Text(
+                    "Tantárgyak:",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: subjectList.subjects.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      Subject subject = subjectList.subjects[index];
+                      return Card(
+                        elevation: 3,
+                        child: ListTile(
+                          title: Text(
+                            subject.name,
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          textColor: getSubjectColor(subject.sure),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              Slider(
+                                value: subject.grade.toDouble(),
+                                min: 1,
+                                max: 5,
+                                divisions: 4,
+                                label: subject.grade.toString(),
+                                onChanged: (double value) {
+                                  setState(() {
+                                    subject.setGrade(value.toInt());
+                                    reCalculateAllData();
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          leading: IconButton(
+                            icon: Icon(getSubjectIcon(subject.sure),
+                                size: 30, color: getSubjectColor(subject.sure)),
+                            onPressed: () {
+                              setState(() {
+                                subject.setSure();
+                              });
+                            },
+                          ),
+                          onLongPress: () {
+                            _showDeletionReassuranceDialog(context, subject);
                           },
                         ),
-                        onLongPress: () {
-                          _showDeletionReassuranceDialog(context, subject);
-                        },
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    _showAddSubjectDialog(context);
-                  },
-                  child: const Text('Új tárgy felvétele'),
-                ),
-              ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      _showAddSubjectDialog(context);
+                    },
+                    child: const Text('Új tárgy felvétele'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

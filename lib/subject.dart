@@ -80,5 +80,11 @@ class SubjectList extends ChangeNotifier {
     return totalWeight;
   }
 
+  void removeAllSubjects(){
+    subjects.clear();
+    saveSubjectsToPrefs();
+    notifyListeners();
+  }
+
   int size() => subjects.length;
 }

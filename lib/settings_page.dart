@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,17 +15,21 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _controller;
-  late int _creditDivisionNumber;
+  int _creditDivisionNumber = 0;
+  late SubjectList subjectList;
 
   @override
   void initState() {
     super.initState();
+
+    subjectList = Provider.of<SubjectList>(context, listen: false);
+
     _controller = TextEditingController();
     _loadCreditDivisionNumber();
     _controller.addListener(_saveCreditDivisionNumber);
   }
 
-  Future<void> _loadCreditDivisionNumber() async {
+  void _loadCreditDivisionNumber() async {
     final prefs = await SharedPreferences.getInstance();
     _creditDivisionNumber = prefs.getInt('creditDivisionNumber') ?? 0;
 
@@ -60,6 +65,11 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Beállítások"),
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/');
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -86,9 +96,53 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
             ),
+            const Text('Összes tantárgy törlése'),
+            ElevatedButton(
+                onPressed: () {
+                  _showDeleteAllSubjectsDialog(context);
+                },
+                child: const Text(
+                  'TÖRLÉS',
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                )
+            )
           ],
         ),
       ),
     );
   }
+
+  Future<void> _showDeleteAllSubjectsDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Biztosan törlöd az összes tárgyat?'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    subjectList.removeAllSubjects();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Igen',
+                    style: TextStyle(
+                      color: Colors.red
+                    ),
+                  )
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse')
+              )
+            ],
+          );
+        }
+    );
+  }
+
 }
