@@ -15,6 +15,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _creditCount = 0;
+  int _finalCreditCount = 0;
   SubjectList subjectList = SubjectList();
   late ResultPanel indexPanel;
   late ResultPanel averagePanel;
@@ -58,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   IconData getSubjectIcon(bool sure) {
-    return sure ? Icons.bookmark_added : Icons.bookmark_remove;
+    return sure ? Icons.bookmark_added : Icons.bookmark;
   }
 
   void reCalculateCreditIndex(int creditDivisionNumber) {
@@ -105,12 +106,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void reCalculateFinalCreditCount(){
+    _finalCreditCount = _creditCount;
+
+    for(var subject in subjectList.subjects){
+      if(subject.grade < 2){
+        _finalCreditCount -= subject.weight;
+      }
+    }
+  }
+
   void reCalculateAllData() {
     int creditDivisionNumber =
         context.read<CreditDivisionNotifier>().creditDivisionNumber;
     reCalculateCreditIndex(creditDivisionNumber);
     reCalculateAverage();
     reCalculateWeightedCreditIndex();
+
+    reCalculateFinalCreditCount();
 
     //Saving data after every recalculation
     subjectList.saveSubjectsToPrefs();
@@ -146,6 +159,11 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Text(
                   "Felvett kreditek száma: $_creditCount",
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Teljesített kreditek száma: $_finalCreditCount",
                   style: const TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 10),
@@ -206,16 +224,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             });
                           },
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                            size: 30,
-                          ),
-                          onPressed: () {
-                            _showDeletionReassuranceDialog(context, subject);
-                          },
-                        ),
+                        onLongPress: () {
+                          _showDeletionReassuranceDialog(context, subject);
+                        },
                       ),
                     );
                   },
