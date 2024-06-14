@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,8 +74,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void loadSavedCardVisibilityData() async {
     var prefs = await SharedPreferences.getInstance();
     _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
-    _showSummarizedCreditIndexCard = prefs.getBool('summarizedCreditIndexVisible') ?? true;
-    _showWeightedCreditIndexCard = prefs.getBool('weightedCreditIndexVisible') ?? true;
+    _showSummarizedCreditIndexCard =
+        prefs.getBool('summarizedCreditIndexVisible') ?? true;
+    _showWeightedCreditIndexCard =
+        prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
   }
 
@@ -96,11 +97,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return sure ? Icons.bookmark_added : Icons.bookmark;
   }
 
-  void reCalculateFinalCreditCount(){
+  void reCalculateFinalCreditCount() {
     _finalCreditCount = _creditCount;
 
-    for(var subject in subjectList.subjects){
-      if(subject.grade < 2){
+    for (var subject in subjectList.subjects) {
+      if (subject.grade < 2) {
         _finalCreditCount -= subject.weight;
       }
     }
@@ -202,12 +203,14 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.pushReplacementNamed(context, '/settings');
             },
             icon: const Icon(Icons.settings),
+            tooltip: 'Beállítások',
           ),
           IconButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/info');
               },
-              icon: const Icon(Icons.info)
+              icon: const Icon(Icons.info),
+              tooltip: 'Információ',
           )
         ],
       ),
@@ -230,21 +233,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 10),
 
-                  //if creditIndex is set to visible
-                  if(_showCreditIndexCard) indexPanel,
-                  if(_showCreditIndexCard) const SizedBox(height: 10),
-
                   //if summarizedCreditIndex is set to visible
-                  if(_showSummarizedCreditIndexCard) summarizedIndexPanel,
-                  if(_showSummarizedCreditIndexCard) const SizedBox(height: 10),
+                  if (_showSummarizedCreditIndexCard) summarizedIndexPanel,
+                  if (_showSummarizedCreditIndexCard) const SizedBox(height: 10),
+
+                  //if creditIndex is set to visible
+                  if (_showCreditIndexCard) indexPanel,
+                  if (_showCreditIndexCard) const SizedBox(height: 10),
 
                   //if weightedCreditIndex is set to visible
-                  if(_showWeightedCreditIndexCard) weightedPanel,
-                  if(_showWeightedCreditIndexCard) const SizedBox(height: 10),
+                  if (_showWeightedCreditIndexCard) weightedPanel,
+                  if (_showWeightedCreditIndexCard) const SizedBox(height: 10),
 
                   //if average is set to visible
-                  if(_showAverageCard) averagePanel,
-                  if(_showAverageCard) const SizedBox(height: 50),
+                  if (_showAverageCard) averagePanel,
+                  if (_showAverageCard) const SizedBox(height: 50),
                   const Text(
                     "Tantárgyak:",
                     style: TextStyle(fontSize: 18),
@@ -321,7 +324,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _showDeletionReassuranceDialog(BuildContext context, Subject subject) async {
+  Future<void> _showDeletionReassuranceDialog(
+      BuildContext context, Subject subject) async {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -339,21 +343,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     'Igen',
-                    style: TextStyle(
-                      color: Colors.red
-                    ),
-                  )
-              ),
+                    style: TextStyle(color: Colors.red),
+                  )),
               TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Mégse')
-              )
+                  child: const Text('Mégse'))
             ],
           );
-        }
-    );
+        });
   }
 
   // Method to show a dialog for adding a new subject
@@ -397,15 +396,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 int weight = int.tryParse(weightController.text.trim()) ?? 0;
                 int grade = 5;
 
-                if(name.isNotEmpty && !nameIsUnique(name)){
+                if (name.isNotEmpty && !nameIsUnique(name)) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                          'Már létezik tárgy ezzel a névvel!'),
+                      content: Text('Már létezik tárgy ezzel a névvel!'),
                     ),
                   );
-                }
-                else if (weight > 0) {
+                } else if (weight > 0) {
                   Subject newSubject = Subject(
                       newName: name, newWeight: weight, newGrade: grade);
                   setState(() {
@@ -432,55 +429,78 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showSetEarlierCreditIndex(BuildContext context) async {
-    TextEditingController earlierCreditController = TextEditingController(text: _earlierCreditIndex.toString());
+    TextEditingController earlierCreditController =
+        TextEditingController(text: _earlierCreditIndex.toString());
+    bool hasError = false;
 
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Előző félévben a kreditindexed:"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: earlierCreditController,
-                decoration: InputDecoration(
-                  labelText: 'Korábbi kreditindex',
-                  errorText: _earlierCreditIndex <= 0 ? '0-nál nagyobb érték kell' : null,
+        return StatefulBuilder(
+          builder: (BuildContext context,  setState) {
+            return AlertDialog(
+              title: const Text("Előző félévben a kreditindexed:"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                      controller: earlierCreditController,
+                      decoration: InputDecoration(
+                        labelText: 'Korábbi kreditindex',
+                        errorText: hasError ? 'Helytelen érték!' : null,
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        RegExp validInput = RegExp(r'^\d\.\d+$');
+                        if (validInput.hasMatch(earlierCreditController.text)) {
+                          setState(() {
+                            hasError = false;
+                            double parsedValue = double.tryParse(value) ?? 0.0;
+                            _earlierCreditIndex = parsedValue;
+                          });
+                        } else {
+                          setState(() {
+                            hasError = true;
+                          });
+                        }
+                      }),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse'),
                 ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    double parsedValue = double.tryParse(value) ?? 0.0;
-                    setState(() {
-                      _earlierCreditIndex = parsedValue;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Mégse'),
-            ),
-            TextButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setDouble('earlierCreditIndex', _earlierCreditIndex);
-                setState(() {
-                  reCalculateAllData();
-                });
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Mentés',
-              ),
-            ),
-          ],
+                TextButton(
+                  onPressed: () async {
+                    if (hasError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Ponttal elválasztott tizedes törtet írj be (pl.: 4.52)'),
+                        ),
+                      );
+                    } else {
+                      SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                      await prefs.setDouble(
+                          'earlierCreditIndex', _earlierCreditIndex);
+                      setState(() {
+                        reCalculateAllData();
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text(
+                    'Mentés',
+                  ),
+                ),
+              ],
+            );
+          },
+
         );
       },
     );
@@ -493,11 +513,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
   bool nameIsUnique(String name) {
     name = name.trim();
-    for(var subject in subjectList.subjects){
-      if(subject.name == name) {
+    for (var subject in subjectList.subjects) {
+      if (subject.name == name) {
         return false;
       }
     }
@@ -589,7 +608,11 @@ class ClickableResultPanel extends ResultPanel {
     required double initialValue,
     required Color panelColor,
     required this.onTap,
-  }) : super(key: key, name: name, initialValue: initialValue, panelColor: panelColor);
+  }) : super(
+            key: key,
+            name: name,
+            initialValue: initialValue,
+            panelColor: panelColor);
 
   @override
   _ClickableResultPanelState createState() => _ClickableResultPanelState();

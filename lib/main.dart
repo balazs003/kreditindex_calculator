@@ -40,9 +40,52 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ÁtlagoSCH',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          useMaterial3: true,
+          colorScheme: const ColorScheme(
+            brightness: Brightness.light,
+            primary: Colors.green,
+            onPrimary: Colors.white,
+            secondary: Colors.greenAccent,
+            onSecondary: Colors.black,
+            error: Colors.red,
+            onError: Colors.white,
+            background: Colors.white,
+            onBackground: Colors.black,
+            surface: Colors.white,
+            onSurface: Colors.black,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.green,
+          ),
+          buttonTheme: const ButtonThemeData(
+            buttonColor: Colors.green,
+            textTheme: ButtonTextTheme.primary,
+          ),
         ),
+        darkTheme: ThemeData(
+          colorScheme: const ColorScheme(
+            brightness: Brightness.dark,
+            primary: Colors.green,
+            onPrimary: Colors.black,
+            secondary: Colors.greenAccent,
+            onSecondary: Colors.black,
+            error: Colors.red,
+            onError: Colors.black,
+            background: Colors.black,
+            onBackground: Colors.white,
+            surface: Colors.black,
+            onSurface: Colors.white,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.green,
+          ),
+          buttonTheme: const ButtonThemeData(
+            buttonColor: Colors.green,
+            textTheme: ButtonTextTheme.primary,
+          ),
+        ),
+        themeMode: ThemeMode.system,
         home: const MyHomePage(title: 'Kezdőlap'),
         routes: {
           '/settings': (context) => const SettingsPage(),

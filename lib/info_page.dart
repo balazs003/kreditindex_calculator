@@ -27,7 +27,7 @@ class InfoPage extends StatelessWidget {
                   fontWeight: FontWeight.bold
                 ),
               ),
-              Divider(color: Colors.black,),
+              Divider(color: Colors.green,),
               SizedBox(height: 20,),
               Text(
                 'Kreditek száma',

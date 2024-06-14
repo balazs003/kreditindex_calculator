@@ -150,21 +150,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 18),
                       ),
                       SwitchListTile(
-                        title: const Text('Kreditindex'),
-                        value: _showCreditIndexCard,
-                        onChanged: (value) {
-                          setState(() {
-                            _showCreditIndexCard = value;
-                            _saveSettingsData();
-                          });
-                        },
-                      ),
-                      SwitchListTile(
                         title: const Text('Kreditindex az előző félévvel együtt'),
                         value: _showSummarizedCreditIndexCard,
                         onChanged: (value) {
                           setState(() {
                             _showSummarizedCreditIndexCard = value;
+                            _saveSettingsData();
+                          });
+                        },
+                      ),
+                      SwitchListTile(
+                        title: const Text('Kreditindex'),
+                        value: _showCreditIndexCard,
+                        onChanged: (value) {
+                          setState(() {
+                            _showCreditIndexCard = value;
                             _saveSettingsData();
                           });
                         },
