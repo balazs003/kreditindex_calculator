@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Subject extends ChangeNotifier {
+class Subject {
   late String name;
   late int weight;
   late int grade;
@@ -15,13 +14,11 @@ class Subject extends ChangeNotifier {
 
   void setGrade(int newGrade){
     grade = newGrade;
-    notifyListeners();
     saveToPrefs();
   }
 
   void setSure(){
     sure = !sure;
-    notifyListeners();
     saveToPrefs();
   }
 
@@ -37,22 +34,19 @@ class Subject extends ChangeNotifier {
     grade = prefs.getInt('grade_$name') ?? 0;
     sure = prefs.getBool('sure_$name') ?? true;
     weight = prefs.getInt('weight_$name') ?? 0;
-    notifyListeners();
   }
 }
 
-class SubjectList extends ChangeNotifier {
+class SubjectList {
   List<Subject> subjects = [];
 
   void addSubject(Subject subject){
     subjects.add(subject);
-    notifyListeners();
     subject.saveToPrefs();
   }
 
   void removeSubject(Subject subject) {
     subjects.remove(subject);
-    notifyListeners();
   }
 
   Future<void> saveSubjectsToPrefs() async {
@@ -72,7 +66,6 @@ class SubjectList extends ChangeNotifier {
         subjects.add(subject);
       }
     }
-    notifyListeners();
   }
 
   int calculateTotalWeight(){
