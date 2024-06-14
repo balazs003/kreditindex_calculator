@@ -138,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
     int creditDivisionNumber =
         context.watch<CreditDivisionNotifier>().creditDivisionNumber;
 
-    //Recalculate the credit index whenever the credit division number changes
+    //Recalculate the credit index and all data when going back from settings
     reCalculateCreditIndex(creditDivisionNumber);
     reCalculateAllData();
 
@@ -329,7 +329,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 int weight = int.tryParse(weightController.text.trim()) ?? 0;
                 int grade = 5;
 
-                if (name.isNotEmpty && weight > 0) {
+                if(name.isNotEmpty && !nameIsUnique(name)){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'Már létezik tárgy ezzel a névvel!'),
+                    ),
+                  );
+                }
+                else if (weight > 0) {
                   Subject newSubject = Subject(
                       newName: name, newWeight: weight, newGrade: grade);
                   setState(() {
@@ -342,7 +350,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                          'A kredit és jegy mezőkben helyes számérték kell szerepeljen!'),
+                          'A kredit mezőben 0-nál nagyobb számérték kell szerepeljen!'),
                     ),
                   );
                 }
@@ -353,6 +361,16 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+  }
+
+  bool nameIsUnique(String name) {
+    name = name.trim();
+    for(var subject in subjectList.subjects){
+      if(subject.name == name) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
