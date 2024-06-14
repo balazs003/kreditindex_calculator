@@ -47,7 +47,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void reCalculateCreditIndex(int creditDivisionNumber) {
     int sum = 0;
     for (var subject in subjectList.subjects) {
-      sum += subject.weight * subject.grade;
+      if(subject.grade > 1) {
+        sum += subject.weight * subject.grade;
+      }
     }
 
     double creditIndex = sum / creditDivisionNumber.toDouble();
@@ -73,7 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void reCalculateWeightedCreditIndex() {
     int sum = 0;
     for (var subject in subjectList.subjects) {
-      sum += subject.weight * subject.grade;
+      if(subject.grade > 1) {
+        sum += subject.weight * subject.grade;
+      }
     }
 
     double weightedCreditIndex =
@@ -137,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 10),
                 ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: subjectList.subjects.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -163,6 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
+                      leading: const Icon(Icons.bookmark_added, size: 30,),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
