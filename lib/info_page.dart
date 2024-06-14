@@ -10,7 +10,7 @@ class InfoPage extends StatelessWidget {
         title: const Text("Információ"),
         leading: BackButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/');
+            Navigator.pop(context);
           },
         ),
       ),
@@ -136,6 +136,20 @@ class InfoPage extends StatelessWidget {
               ),
               Text(
                 'A beállítások menüben megadhatjuk, hogy kreditérték számításnál mennyivel osszon a program, például kollégiumba bekerüléshez, vagy ösztöndíjhez szükséges átlag számításakor ez hasznos lehet.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
+                'Frissítés gomb',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'Ha azt vennénk észre, hogy valamelyik kártya elfelejtette frissíteni az adatait, ezzel a gombbal rákényszeríthetjük, hogy helyreálljon a rend. Valószínűleg nem lesz rá szükség, de jobb a békesség.',
                 style: TextStyle(
                   fontSize: 17,
                 ),

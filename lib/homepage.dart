@@ -80,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _showWeightedCreditIndexCard =
         prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
+
+    print('visibility betoltve');
   }
 
   void loadSavedSubjectData() async {
@@ -190,9 +192,11 @@ class _MyHomePageState extends State<MyHomePage> {
         context.watch<CreditDivisionNotifier>().creditDivisionNumber;
 
     //Recalculate the credit index and all data when going back from settings
-    reCalculateCreditIndex(creditDivisionNumber);
-    reCalculateSummarizedCreditIndex(creditDivisionNumber);
-    reCalculateAllData();
+    setState(() {
+      reCalculateCreditIndex(creditDivisionNumber);
+      reCalculateSummarizedCreditIndex(creditDivisionNumber);
+      reCalculateAllData();
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -200,15 +204,30 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: [
           IconButton(
+              onPressed: () {
+                setState(() {
+                  reCalculateAllData();
+                });
+              },
+              icon: const Icon(Icons.refresh),
+            tooltip: 'Frissítés',
+          ),
+          IconButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/settings');
+              Navigator.pushNamed(context, '/settings').then((_) {
+                //Reload card visibility settings after returning from settings page
+                setState(() {
+                  //loadSavedCardVisibilityData();
+                  Navigator.pushReplacementNamed(context, '/');
+                });
+              });
             },
             icon: const Icon(Icons.settings),
             tooltip: 'Beállítások',
           ),
           IconButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/info');
+                Navigator.pushNamed(context, '/info');
               },
               icon: const Icon(Icons.info),
               tooltip: 'Információ',

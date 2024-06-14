@@ -88,11 +88,6 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Beállítások"),
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/');
-          },
-        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
