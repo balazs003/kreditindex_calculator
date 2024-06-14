@@ -14,6 +14,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool isLoading = true;
   int _creditCount = 0;
   int _finalCreditCount = 0;
   SubjectList subjectList = SubjectList();
@@ -51,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _creditCount = subjectList.calculateTotalWeight();
       reCalculateAllData();
+      isLoading = false;
     });
   }
 
@@ -134,8 +136,28 @@ class _MyHomePageState extends State<MyHomePage> {
     int creditDivisionNumber =
         context.watch<CreditDivisionNotifier>().creditDivisionNumber;
 
-    // Recalculate the credit index whenever the credit division number changes
+    //Recalculate the credit index whenever the credit division number changes
     reCalculateCreditIndex(creditDivisionNumber);
+
+    if(isLoading){
+      return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/settings');
+                },
+                icon: const Icon(Icons.settings),
+              )
+            ],
+          ),
+          body: const Center(
+            child: CircularProgressIndicator(),
+          )
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
