@@ -563,9 +563,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool nameIsUnique(String name) {
-    name = name.trim();
+    name = name.trim().toLowerCase();
     for (var subject in subjectList.subjects) {
-      if (subject.name == name) {
+      if (subject.name.toLowerCase() == name) {
         return false;
       }
     }
