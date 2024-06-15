@@ -38,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showWeightedCreditIndexCard = true;
   bool _showAverageCard = true;
 
+  int counter = 0;
+
   @override
   void initState() {
     super.initState();
@@ -80,8 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _showWeightedCreditIndexCard =
         prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
-
-    print('visibility betoltve');
   }
 
   void loadSavedSubjectData() async {
@@ -184,19 +184,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //Saving data after every recalculation
     subjectList.saveSubjectsToPrefs();
+
+    print('UJRASZAMOLVA ' + counter.toString()); counter++;
   }
 
   @override
   Widget build(BuildContext context) {
-    int creditDivisionNumber =
-        context.watch<CreditDivisionNotifier>().creditDivisionNumber;
-
-    //Recalculate the credit index and all data when going back from settings
-    setState(() {
-      reCalculateCreditIndex(creditDivisionNumber);
-      reCalculateSummarizedCreditIndex(creditDivisionNumber);
-      reCalculateAllData();
-    });
 
     return Scaffold(
       appBar: AppBar(
