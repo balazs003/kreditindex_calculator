@@ -64,7 +64,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez a kártya abban különbözik a többitől, hogy kattintható, ekkor megjelenik egy párbeszédablak, amiben beállíthatjuk a korábbi félévben megszerzett kreditindexünket. A Mentés gombra kattintva a program megjegyzi ezt az értéket, de bármikor módosíthatjuk a kártyára kattintva.',
+                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez az információ a BME VIK-re járó kollégistáknak lehet releváns. Ez a kártya abban különbözik a többitől, hogy kattintható, ekkor megjelenik egy párbeszédablak, amiben beállíthatjuk a korábbi félévben megszerzett kreditindexünket. A Mentés gombra kattintva a program megjegyzi ezt az értéket, de bármikor módosíthatjuk a kártyára kattintva.',
                 style: TextStyle(
                   fontSize: 17,
                 ),
