@@ -234,8 +234,10 @@ class _SettingsPageState extends State<SettingsPage> {
             actions: [
               TextButton(
                   onPressed: () {
-                    subjectList.removeAllSubjects();
-                    Navigator.of(context).pop();
+                    setState(() {
+                      subjectList.removeAllSubjects();
+                      Navigator.of(context).pop();
+                    });
                   },
                   child: const Text(
                     'Igen',

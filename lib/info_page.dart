@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class InfoPage extends StatelessWidget {
   @override
@@ -51,7 +50,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'Az oldal tetején látható színes kártyák közül a beállításokban kiválaszthatjuk, hogy melyiket szeretnénk megjeleníteni. Ha a kártyákra kattintunk, megjelenik egy ablak, amiben láthatjuk az adott érték számításának módját.',
+                'Az oldal tetején látható színes kártyák közül a beállításokban kiválaszthatjuk, hogy melyiket szeretnénk megjeleníteni.',
                 style: TextStyle(
                     fontSize: 17,
                 ),
@@ -163,7 +162,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '1.0.0.0',
+                '1.0.0.2',
                 style: TextStyle(
                   fontSize: 17,
                 ),

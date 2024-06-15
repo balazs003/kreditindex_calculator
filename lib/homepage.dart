@@ -217,7 +217,6 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.pushNamed(context, '/settings').then((_) {
                 //Reload card visibility settings after returning from settings page
                 setState(() {
-                  //loadSavedCardVisibilityData();
                   Navigator.pushReplacementNamed(context, '/');
                 });
               });
@@ -389,78 +388,90 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  // Method to show a dialog for adding a new subject
+  //Method to show a dialog for adding a new subject
   Future<void> _showAddSubjectDialog(BuildContext context) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
+    final singleDigitRegex = RegExp(r'^\d$');
+    bool isSingleDigit = true;
+    bool isNameUnique = true;
 
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Új tárgy felvétele'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Név',
-                ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Új tárgy felvétele'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Név',
+                      errorText: isNameUnique ? null : 'A név már létezik!',
+                    ),
+                    onChanged: (value) {
+                      setState((){
+                        isNameUnique = nameIsUnique(value);
+                      });
+                    },
+                  ),
+                  TextField(
+                    controller: weightController,
+                    decoration: InputDecoration(
+                      labelText: 'Kredit',
+                      errorText: isSingleDigit ? null : 'Egy számjegyet írj be!',
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        isSingleDigit = singleDigitRegex.hasMatch(value);
+                      });
+                    },
+                  ),
+                ],
               ),
-              TextField(
-                controller: weightController,
-                decoration: const InputDecoration(
-                  labelText: 'Kredit',
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse'),
                 ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Mégse'),
-            ),
-            TextButton(
-              onPressed: () {
-                String name = nameController.text.trim();
-                int weight = int.tryParse(weightController.text.trim()) ?? 0;
-                int grade = 5;
+                TextButton(
+                  onPressed: () {
+                    String name = nameController.text.trim();
 
-                if (name.isNotEmpty && !nameIsUnique(name)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Már létezik tárgy ezzel a névvel!'),
-                    ),
-                  );
-                } else if (weight > 0) {
-                  Subject newSubject = Subject(
-                      newName: name, newWeight: weight, newGrade: grade);
-                  setState(() {
-                    subjectList.addSubject(newSubject);
-                    _creditCount += weight;
-                    reCalculateAllData();
-                  });
-                  Navigator.of(context).pop(); // Close dialog
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'A kredit mezőben 0-nál nagyobb számérték kell szerepeljen!'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Hozzáadás'),
-            ),
-          ],
+                    setState((){
+                      isSingleDigit = singleDigitRegex.hasMatch(weightController.text);
+                    });
+
+                    int weight = int.tryParse(weightController.text.trim()) ?? 0;
+                    int grade = 5;
+
+                    if (name.isNotEmpty && isSingleDigit) {
+                      Subject newSubject = Subject(
+                          newName: name, newWeight: weight, newGrade: grade);
+                      setState(() {
+                        subjectList.addSubject(newSubject);
+                        _creditCount += weight;
+                        reCalculateAllData();
+                      });
+                      Navigator.of(context).pop(); // Close dialog
+                    }
+                  },
+                  child: const Text('Hozzáadás'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
+
 
   void _showSetEarlierCreditIndex(BuildContext context) async {
     TextEditingController earlierCreditController =
