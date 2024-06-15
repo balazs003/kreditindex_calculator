@@ -395,6 +395,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final singleDigitRegex = RegExp(r'^\d$');
     bool isSingleDigit = true;
     bool isNameUnique = true;
+    bool isNameEmpty = false;
 
     return showDialog(
       context: context,
@@ -410,11 +411,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Név',
-                      errorText: isNameUnique ? null : 'A név már létezik!',
+                      errorText: isNameEmpty ? 'A név nem lehet üres!' : (isNameUnique ? null : 'A név már létezik!'),
                     ),
                     onChanged: (value) {
                       setState((){
                         isNameUnique = nameIsUnique(value);
+                        isNameEmpty = value.isEmpty;
                       });
                     },
                   ),
@@ -446,6 +448,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     setState((){
                       isSingleDigit = singleDigitRegex.hasMatch(weightController.text);
+                      isNameUnique = nameIsUnique(nameController.text);
+                      isNameEmpty = nameController.text.isEmpty;
                     });
 
                     int weight = int.tryParse(weightController.text.trim()) ?? 0;

@@ -162,7 +162,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '1.0.0.2',
+                '1.0.0.3',
                 style: TextStyle(
                   fontSize: 17,
                 ),
