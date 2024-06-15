@@ -5,12 +5,13 @@ class Subject {
   late String name;
   late int weight;
   late int grade;
-  bool sure = true;
+  late bool sure;
 
-  Subject({required String newName, required int newWeight, required int newGrade}){
+  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure}){
     name = newName;
     weight = newWeight;
     grade = newGrade;
+    sure = newSure;
   }
 
   void setGrade(int newGrade){
@@ -47,6 +48,15 @@ class SubjectList extends ChangeNotifier {
     notifyListeners();
   }
 
+  void modifySubject(Subject oldSubject, Subject newSubject) {
+    int index = subjects.indexOf(oldSubject);
+    if(index != -1){
+      subjects[index] = newSubject;
+      newSubject.saveToPrefs();
+      notifyListeners();
+    }
+  }
+
   void removeSubject(Subject subject) {
     subjects.remove(subject);
     notifyListeners();
@@ -64,7 +74,7 @@ class SubjectList extends ChangeNotifier {
     if (subjectNames != null) {
       subjects.clear();
       for (String name in subjectNames) {
-        Subject subject = Subject(newName: name, newWeight: 0, newGrade: 0);
+        Subject subject = Subject(newName: name, newWeight: 0, newGrade: 0, newSure: true);
         await subject.loadFromPrefs(name);
         subjects.add(subject);
       }

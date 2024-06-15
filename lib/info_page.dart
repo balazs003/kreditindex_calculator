@@ -113,6 +113,20 @@ class InfoPage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               Text(
+                'Tárgy szerkesztése',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'Ha egy tárgyat szerkeszteni szeretnénk, akkor húzzuk jobbra a kártyáját, majd a kék mezőre nyomva megjelenik egy ablak, ahol szerkeszthetjük a tárgy adatait.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
                 'Tárgy(ak) törlése',
                 style: TextStyle(
                     fontSize: 20,
@@ -141,20 +155,6 @@ class InfoPage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               Text(
-                'Frissítés gomb',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Ha azt vennénk észre, hogy valamelyik kártya elfelejtette frissíteni az adatait, ezzel a gombbal rákényszeríthetjük, hogy helyreálljon a rend. Valószínűleg nem lesz rá szükség, de jobb a békesség.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
                 'Alkalmazás verziója',
                 style: TextStyle(
                     fontSize: 20,
@@ -162,7 +162,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '1.0.0.5',
+                '1.0.1.5',
                 style: TextStyle(
                   fontSize: 17,
                 ),

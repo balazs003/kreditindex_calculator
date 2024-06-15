@@ -38,8 +38,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showWeightedCreditIndexCard = true;
   bool _showAverageCard = true;
 
-  int counter = 0;
-
   @override
   void initState() {
     super.initState();
@@ -184,8 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //Saving data after every recalculation
     subjectList.saveSubjectsToPrefs();
-
-    print('UJRASZAMOLVA ' + counter.toString()); counter++;
   }
 
   @override
@@ -196,15 +192,6 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
         actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  reCalculateAllData();
-                });
-              },
-              icon: const Icon(Icons.refresh),
-            tooltip: 'Frissítés',
-          ),
           IconButton(
             onPressed: () {
               Navigator.pushNamed(context, '/settings').then((_) {
@@ -273,6 +260,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       Subject subject = subjectList.subjects[index];
                       return Slidable(
                         key: Key(subject.name),
+                        startActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                                onPressed: (BuildContext context) {
+                                  _showEditSubjectDialog(context, subject);
+                                },
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              icon: Icons.edit,
+                              label: 'Szerkesztés'
+                            )
+                          ],
+                        ),
                         endActionPane: ActionPane(
                           motion: const ScrollMotion(),
                           children: [
@@ -350,6 +351,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  //Dialog with 2 buttons to delete a subject
   Future<void> _showDeletionReassuranceDialog(
       BuildContext context, Subject subject) async {
     return showDialog(
@@ -381,7 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  //Method to show a dialog for adding a new subject
+  //Dialog for adding a new subject
   Future<void> _showAddSubjectDialog(BuildContext context) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
@@ -450,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     if (name.isNotEmpty && isSingleDigit) {
                       Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: grade);
+                          newName: name, newWeight: weight, newGrade: grade, newSure: true);
                       setState(() {
                         subjectList.addSubject(newSubject);
                         _creditCount += weight;
@@ -469,6 +471,101 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  //Dialog for editing a subject
+  Future<void> _showEditSubjectDialog(BuildContext context, Subject oldSubject) async {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController weightController = TextEditingController();
+
+    nameController.text = oldSubject.name;
+    weightController.text = oldSubject.weight.toString();
+
+    final singleDigitRegex = RegExp(r'^\d$');
+    bool isSingleDigit = true;
+    bool isNameUnique = true;
+    bool isNameEmpty = false;
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Tárgy szerkesztése'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Név',
+
+                      errorText: isNameEmpty ? 'A név nem lehet üres!' : (isNameUnique ? null : 'A név már létezik!'),
+                    ),
+                    onChanged: (value) {
+                      setState((){
+                        isNameUnique = nameIsUnique(value);
+                        isNameEmpty = value.isEmpty;
+                      });
+                    },
+                  ),
+                  TextField(
+                    controller: weightController,
+                    decoration: InputDecoration(
+                      labelText: 'Kredit',
+                      errorText: isSingleDigit ? null : 'Egy számjegyet írj be!',
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        isSingleDigit = singleDigitRegex.hasMatch(value);
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    String name = nameController.text.trim();
+
+                    setState((){
+                      isSingleDigit = singleDigitRegex.hasMatch(weightController.text);
+                      isNameUnique = nameIsUnique(nameController.text);
+                      isNameEmpty = nameController.text.isEmpty;
+                    });
+
+                    int weight = int.tryParse(weightController.text.trim()) ?? 0;
+                    int grade = 5;
+
+                    if (name.isNotEmpty && isSingleDigit) {
+                      //New subject is created
+                      Subject newSubject = Subject(
+                          newName: name, newWeight: weight, newGrade: grade, newSure: oldSubject.sure);
+                      setState(() {
+                        //modify old subject
+                        subjectList.modifySubject(oldSubject, newSubject);
+                        _creditCount -= oldSubject.weight;
+                        _creditCount += weight;
+                        reCalculateAllData();
+                      });
+                      Navigator.of(context).pop(); // Close dialog
+                    }
+                  },
+                  child: const Text('Mentés'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   void _showSetEarlierCreditIndex(BuildContext context) async {
     TextEditingController earlierCreditController =
