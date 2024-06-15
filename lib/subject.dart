@@ -31,6 +31,13 @@ class Subject {
     await prefs.setInt('weight_$name', weight);
   }
 
+  void deleteFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('grade_$name');
+    await prefs.remove('sure_$name');
+    await prefs.remove('weight_$name');
+  }
+
   Future<void> loadFromPrefs(String name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     grade = prefs.getInt('grade_$name') ?? 0;
@@ -53,12 +60,15 @@ class SubjectList extends ChangeNotifier {
     if(index != -1){
       subjects[index] = newSubject;
       newSubject.saveToPrefs();
+      oldSubject.deleteFromPrefs();
       notifyListeners();
     }
   }
 
   void removeSubject(Subject subject) {
     subjects.remove(subject);
+    saveSubjectsToPrefs();
+    subject.deleteFromPrefs();
     notifyListeners();
   }
 
@@ -91,6 +101,11 @@ class SubjectList extends ChangeNotifier {
   }
 
   void removeAllSubjects(){
+
+    for(var subject in subjects) {
+      subject.deleteFromPrefs();
+    }
+
     subjects.clear();
     saveSubjectsToPrefs();
     notifyListeners();

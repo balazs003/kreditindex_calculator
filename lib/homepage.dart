@@ -80,6 +80,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _showWeightedCreditIndexCard =
         prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
+
+    final keys = prefs.getKeys();
+
+    final prefsMap = <String, dynamic>{};
+    for(String key in keys) {
+      prefsMap[key] = prefs.get(key);
+    }
+
+    print(prefsMap);
   }
 
   void loadSavedSubjectData() async {
@@ -195,7 +204,6 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             onPressed: () {
               Navigator.pushNamed(context, '/settings').then((_) {
-                //Reload card visibility settings after returning from settings page
                 setState(() {
                   Navigator.pushReplacementNamed(context, '/');
                 });
@@ -255,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: subjectList.subjects.length,
+                    itemCount: subjectList.size(),
                     itemBuilder: (BuildContext context, int index) {
                       Subject subject = subjectList.subjects[index];
                       return Slidable(
