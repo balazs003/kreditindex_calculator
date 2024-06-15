@@ -80,15 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _showWeightedCreditIndexCard =
         prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
-
-    final keys = prefs.getKeys();
-
-    final prefsMap = <String, dynamic>{};
-    for(String key in keys) {
-      prefsMap[key] = prefs.get(key);
-    }
-
-    print(prefsMap);
   }
 
   void loadSavedSubjectData() async {
@@ -747,19 +738,16 @@ class _ResultPanelState extends State<ResultPanel> {
 }
 
 class ClickableResultPanel extends ResultPanel {
+  @override
   final VoidCallback onTap;
 
   ClickableResultPanel({
-    Key? key,
-    required String name,
-    required double initialValue,
-    required Color panelColor,
+    super.key,
+    required super.name,
+    required super.initialValue,
+    required super.panelColor,
     required this.onTap,
-  }) : super(
-            key: key,
-            name: name,
-            initialValue: initialValue,
-            panelColor: panelColor);
+  });
 
   @override
   _ClickableResultPanelState createState() => _ClickableResultPanelState();
