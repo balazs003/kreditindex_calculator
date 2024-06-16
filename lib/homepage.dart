@@ -382,12 +382,21 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  //Dialog for adding a new subject
-  Future<void> _showAddSubjectDialog(BuildContext context) async {
+  bool creditValidation(String value) {
+    final validCreditRegex = RegExp(r'^\d{1,2}$');
+    return validCreditRegex.hasMatch(value);
+  }
+
+  Future<void> _showSubjectDialog(BuildContext context, {Subject? subject}) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
-    final singleDigitRegex = RegExp(r'^\d$');
-    bool isSingleDigit = true;
+
+    if (subject != null) {
+      nameController.text = subject.name;
+      weightController.text = subject.weight.toString();
+    }
+
+    bool isCreditValid = true;
     bool isNameUnique = true;
     bool isNameEmpty = false;
 
@@ -397,7 +406,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: const Text('Új tárgy felvétele'),
+              title: Text(subject == null ? 'Új tárgy felvétele' : 'Tárgy szerkesztése'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -408,7 +417,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       errorText: isNameEmpty ? 'A név nem lehet üres!' : (isNameUnique ? null : 'A név már létezik!'),
                     ),
                     onChanged: (value) {
-                      setState((){
+                      setState(() {
                         isNameUnique = nameIsUnique(value);
                         isNameEmpty = value.isEmpty;
                       });
@@ -418,12 +427,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: weightController,
                     decoration: InputDecoration(
                       labelText: 'Kredit',
-                      errorText: isSingleDigit ? null : 'Egy számjegyet írj be!',
+                      errorText: isCreditValid ? null : 'Egy vagy két számjegyet írj be!',
                     ),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
-                        isSingleDigit = singleDigitRegex.hasMatch(value);
+                        isCreditValid = creditValidation(value);
                       });
                     },
                   ),
@@ -440,8 +449,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     String name = nameController.text.trim();
 
-                    setState((){
-                      isSingleDigit = singleDigitRegex.hasMatch(weightController.text);
+                    setState(() {
+                      isCreditValid = creditValidation(weightController.text);
                       isNameUnique = nameIsUnique(nameController.text);
                       isNameEmpty = nameController.text.isEmpty;
                     });
@@ -449,18 +458,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     int weight = int.tryParse(weightController.text.trim()) ?? 0;
                     int grade = 5;
 
-                    if (name.isNotEmpty && isSingleDigit) {
+                    if (name.isNotEmpty && isCreditValid) {
                       Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: grade, newSure: true);
+                          newName: name, newWeight: weight, newGrade: grade, newSure: subject?.sure ?? true);
+
                       setState(() {
-                        subjectList.addSubject(newSubject);
-                        _creditCount += weight;
+                        if (subject == null) {
+                          // Új tárgy felvétele
+                          subjectList.addSubject(newSubject);
+                          _creditCount += weight;
+                        } else {
+                          // Meglévő tárgy szerkesztése
+                          subjectList.modifySubject(subject, newSubject);
+                          _creditCount -= subject.weight;
+                          _creditCount += weight;
+                        }
                         reCalculateAllData();
                       });
-                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(context).pop(); // Dialógus bezárása
                     }
                   },
-                  child: const Text('Hozzáadás'),
+                  child: Text(subject == null ? 'Hozzáadás' : 'Mentés'),
                 ),
               ],
             );
@@ -470,100 +488,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  //Dialog for editing a subject
+  Future<void> _showAddSubjectDialog(BuildContext context) async {
+    return _showSubjectDialog(context);
+  }
+
   Future<void> _showEditSubjectDialog(BuildContext context, Subject oldSubject) async {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController weightController = TextEditingController();
-
-    nameController.text = oldSubject.name;
-    weightController.text = oldSubject.weight.toString();
-
-    final singleDigitRegex = RegExp(r'^\d$');
-    bool isSingleDigit = true;
-    bool isNameUnique = true;
-    bool isNameEmpty = false;
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text('Tárgy szerkesztése'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Név',
-
-                      errorText: isNameEmpty ? 'A név nem lehet üres!' : (isNameUnique ? null : 'A név már létezik!'),
-                    ),
-                    onChanged: (value) {
-                      setState((){
-                        isNameUnique = nameIsUnique(value);
-                        isNameEmpty = value.isEmpty;
-                      });
-                    },
-                  ),
-                  TextField(
-                    controller: weightController,
-                    decoration: InputDecoration(
-                      labelText: 'Kredit',
-                      errorText: isSingleDigit ? null : 'Egy számjegyet írj be!',
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        isSingleDigit = singleDigitRegex.hasMatch(value);
-                      });
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Mégse'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    String name = nameController.text.trim();
-
-                    setState((){
-                      isSingleDigit = singleDigitRegex.hasMatch(weightController.text);
-                      isNameUnique = nameIsUnique(nameController.text);
-                      isNameEmpty = nameController.text.isEmpty;
-                    });
-
-                    int weight = int.tryParse(weightController.text.trim()) ?? 0;
-                    int grade = 5;
-
-                    if (name.isNotEmpty && isSingleDigit) {
-                      //New subject is created
-                      Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: grade, newSure: oldSubject.sure);
-                      setState(() {
-                        //modify old subject
-                        subjectList.modifySubject(oldSubject, newSubject);
-                        _creditCount -= oldSubject.weight;
-                        _creditCount += weight;
-                        reCalculateAllData();
-                      });
-                      Navigator.of(context).pop(); // Close dialog
-                    }
-                  },
-                  child: const Text('Mentés'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+    return _showSubjectDialog(context, subject: oldSubject);
   }
 
   void _showSetEarlierCreditIndex(BuildContext context) async {

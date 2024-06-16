@@ -59,8 +59,10 @@ class SubjectList extends ChangeNotifier {
     int index = subjects.indexOf(oldSubject);
     if(index != -1){
       subjects[index] = newSubject;
-      newSubject.saveToPrefs();
+
+      //IMPORTANT!! always delete old first
       oldSubject.deleteFromPrefs();
+      newSubject.saveToPrefs();
       notifyListeners();
     }
   }
