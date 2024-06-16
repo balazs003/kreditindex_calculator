@@ -114,20 +114,7 @@ class Subject {
   void deleteFromDatabase() async {
     await DatabaseHelper().deleteSubject(name);
   }
-
-  Future<void> loadFromDatabase(String name) async {
-    List<Subject> subjects = await DatabaseHelper().getSubjects();
-    for (var subject in subjects) {
-      if (subject.name == name) {
-        weight = subject.weight;
-        grade = subject.grade;
-        sure = subject.sure;
-        break;
-      }
-    }
-  }
 }
-
 
 class SubjectList extends ChangeNotifier {
   List<Subject> subjects = [];
@@ -137,16 +124,6 @@ class SubjectList extends ChangeNotifier {
     subject.saveToDatabase();
     notifyListeners();
   }
-
-  /*void modifySubject(Subject oldSubject, Subject newSubject) {
-    int index = subjects.indexOf(oldSubject);
-    if (index != -1) {
-      subjects[index] = newSubject;
-      oldSubject.deleteFromDatabase();
-      newSubject.saveToDatabase();
-      notifyListeners();
-    }
-  }*/
 
   void modifySubject(Subject oldSubject, Subject newSubject) {
     int index = subjects.indexOf(oldSubject);
