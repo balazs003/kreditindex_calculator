@@ -52,6 +52,7 @@ class SubjectList extends ChangeNotifier {
   void addSubject(Subject subject){
     subjects.add(subject);
     subject.saveToPrefs();
+    saveSubjectsToPrefs();
     notifyListeners();
   }
 
@@ -63,6 +64,7 @@ class SubjectList extends ChangeNotifier {
       //IMPORTANT!! always delete old first
       oldSubject.deleteFromPrefs();
       newSubject.saveToPrefs();
+      saveSubjectsToPrefs();
       notifyListeners();
     }
   }
@@ -71,6 +73,7 @@ class SubjectList extends ChangeNotifier {
     subjects.remove(subject);
     saveSubjectsToPrefs();
     subject.deleteFromPrefs();
+    saveSubjectsToPrefs();
     notifyListeners();
   }
 
