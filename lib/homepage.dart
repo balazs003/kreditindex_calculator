@@ -456,11 +456,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
 
                     int weight = int.tryParse(weightController.text.trim()) ?? 0;
-                    int grade = 5;
 
                     if (name.isNotEmpty && isCreditValid) {
                       Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: grade, newSure: subject?.sure ?? true);
+                          newName: name, newWeight: weight, newGrade: subject?.grade ?? 5, newSure: subject?.sure ?? true);
 
                       setState(() {
                         if (subject == null) {
