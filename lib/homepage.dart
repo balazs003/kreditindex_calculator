@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void loadSavedSubjectData() async {
-    await subjectList.loadSubjectsFromPrefs();
+    await subjectList.loadSubjectsFromDatabase();
     setState(() {
       _creditCount = subjectList.calculateTotalWeight();
       reCalculateAllData();
@@ -179,9 +179,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _creditCount = subjectList.calculateTotalWeight();
     reCalculateFinalCreditCount();
-
-    //Saving data after every recalculation
-    subjectList.saveSubjectsToPrefs();
   }
 
   @override
@@ -411,6 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
+                    enabled: subject == null,
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Név',
