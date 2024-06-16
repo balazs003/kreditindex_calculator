@@ -446,16 +446,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Text('Mégse'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    String name = nameController.text.trim();
-
+                  onPressed: isNameEmpty || !isNameUnique || !isCreditValid ? null :() {
                     setState(() {
                       isCreditValid = creditValidation(weightController.text);
                       isNameUnique = nameIsUnique(nameController.text);
                       isNameEmpty = nameController.text.isEmpty;
                     });
 
+                    String name = nameController.text.trim();
                     int weight = int.tryParse(weightController.text.trim()) ?? 0;
+
+                    //values depend on what you modify in the dialog
+                    if(subject != null){
+                      name = name == subject.name ? subject.name : nameController.text.trim();
+                      weight = weight == subject.weight ? subject.weight : int.tryParse(weightController.text.trim()) ?? 0;
+                    }
 
                     if (name.isNotEmpty && isCreditValid) {
                       Subject newSubject = Subject(
@@ -474,7 +479,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         }
                         reCalculateAllData();
                       });
-                      Navigator.of(context).pop(); // Dialógus bezárása
+                      Navigator.of(context).pop(); //Close dialog
                     }
                   },
                   child: Text(subject == null ? 'Hozzáadás' : 'Mentés'),
