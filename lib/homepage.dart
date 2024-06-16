@@ -418,7 +418,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onChanged: (value) {
                       setState(() {
-                        isNameUnique = nameIsUnique(value);
+                        isNameUnique = nameIsUnique(value, subject != null);
                         isNameEmpty = value.isEmpty;
                       });
                     },
@@ -449,30 +449,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: isNameEmpty || !isNameUnique || !isCreditValid ? null :() {
                     setState(() {
                       isCreditValid = creditValidation(weightController.text);
-                      isNameUnique = nameIsUnique(nameController.text);
+                      isNameUnique = nameIsUnique(nameController.text, subject != null);
                       isNameEmpty = nameController.text.isEmpty;
                     });
 
                     String name = nameController.text.trim();
-                    int weight = int.tryParse(weightController.text.trim()) ?? 0;
+                    int weight = int.tryParse(weightController.text) ?? 200;
+                    int grade = 5;
+                    bool sure = true;
 
                     //values depend on what you modify in the dialog
                     if(subject != null){
                       name = name == subject.name ? subject.name : nameController.text.trim();
-                      weight = weight == subject.weight ? subject.weight : int.tryParse(weightController.text.trim()) ?? 0;
+                      weight = weight == subject.weight ? subject.weight : int.tryParse(weightController.text) ?? 200;
+                      grade = subject.grade;
+                      sure = subject.sure;
                     }
 
-                    if (name.isNotEmpty && isCreditValid) {
+                    if (!isNameEmpty && isNameUnique && isCreditValid) {
                       Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: subject?.grade ?? 5, newSure: subject?.sure ?? true);
+                          newName: name, newWeight: weight, newGrade: grade, newSure: sure);
 
                       setState(() {
                         if (subject == null) {
-                          // Új tárgy felvétele
+                          //Adding new subject
                           subjectList.addSubject(newSubject);
                           _creditCount += weight;
                         } else {
-                          // Meglévő tárgy szerkesztése
+                          //Editing old subject
                           subjectList.modifySubject(subject, newSubject);
                           _creditCount -= subject.weight;
                           _creditCount += weight;
@@ -585,7 +589,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  bool nameIsUnique(String name) {
+  bool nameIsUnique(String name, bool modifyingSubject) {
+    if(modifyingSubject) return true;
     name = name.trim().toLowerCase();
     for (var subject in subjectList.subjects) {
       if (subject.name.toLowerCase() == name) {

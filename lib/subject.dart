@@ -71,7 +71,6 @@ class SubjectList extends ChangeNotifier {
 
   void removeSubject(Subject subject) {
     subjects.remove(subject);
-    saveSubjectsToPrefs();
     subject.deleteFromPrefs();
     saveSubjectsToPrefs();
     notifyListeners();
