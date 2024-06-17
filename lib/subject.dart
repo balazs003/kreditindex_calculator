@@ -1,5 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+
+class DatabaseHelper {
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  factory DatabaseHelper() => _instance;
+  DatabaseHelper._internal();
+
+  static Database? _database;
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDatabase();
+    return _database!;
+  }
+
+  Future<Database> _initDatabase() async {
+    String path = join(await getDatabasesPath(), 'subjects.db');
+    return openDatabase(
+      path,
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE subjects(name TEXT PRIMARY KEY, weight INTEGER, grade INTEGER, sure INTEGER)',
+        );
+      },
+      version: 1,
+    );
+  }
+
+  Future<void> insertSubject(Subject subject) async {
+    final db = await database;
+    await db.insert(
+      'subjects',
+      subject.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> updateSubject(Subject subject) async {
+    final db = await database;
+    await db.update(
+      'subjects',
+      subject.toMap(),
+      where: 'name = ?',
+      whereArgs: [subject.name],
+    );
+  }
+
+  Future<void> deleteSubject(String name) async {
+    final db = await database;
+    await db.delete(
+      'subjects',
+      where: 'name = ?',
+      whereArgs: [name],
+    );
+  }
+
+  Future<List<Subject>> getSubjects() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('subjects');
+
+    return List.generate(maps.length, (i) {
+      return Subject(
+        newName: maps[i]['name'],
+        newWeight: maps[i]['weight'],
+        newGrade: maps[i]['grade'],
+        newSure: maps[i]['sure'] == 1,
+      );
+    });
+  }
+}
 
 class Subject {
   late String name;
@@ -7,111 +77,89 @@ class Subject {
   late int grade;
   late bool sure;
 
-  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure}){
+  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure}) {
     name = newName;
     weight = newWeight;
     grade = newGrade;
     sure = newSure;
   }
 
-  void setGrade(int newGrade){
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'weight': weight,
+      'grade': grade,
+      'sure': sure ? 1 : 0,
+    };
+  }
+
+  void setGrade(int newGrade) {
     grade = newGrade;
-    saveToPrefs();
+    updateInDatabase();
   }
 
-  void setSure(){
+  void setSure() {
     sure = !sure;
-    saveToPrefs();
+    updateInDatabase();
   }
 
-  void saveToPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('grade_$name', grade);
-    await prefs.setBool('sure_$name', sure);
-    await prefs.setInt('weight_$name', weight);
+  void saveToDatabase() async {
+    await DatabaseHelper().insertSubject(this);
   }
 
-  void deleteFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('grade_$name');
-    await prefs.remove('sure_$name');
-    await prefs.remove('weight_$name');
+  void updateInDatabase() async {
+    await DatabaseHelper().updateSubject(this);
   }
 
-  Future<void> loadFromPrefs(String name) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    grade = prefs.getInt('grade_$name') ?? 0;
-    sure = prefs.getBool('sure_$name') ?? true;
-    weight = prefs.getInt('weight_$name') ?? 0;
+  void deleteFromDatabase() async {
+    await DatabaseHelper().deleteSubject(name);
   }
 }
 
 class SubjectList extends ChangeNotifier {
   List<Subject> subjects = [];
 
-  void addSubject(Subject subject){
+  void addSubject(Subject subject) {
     subjects.add(subject);
-    subject.saveToPrefs();
-    saveSubjectsToPrefs();
+    subject.saveToDatabase();
     notifyListeners();
   }
 
   void modifySubject(Subject oldSubject, Subject newSubject) {
     int index = subjects.indexOf(oldSubject);
-    if(index != -1){
+    if (index != -1) {
       subjects[index] = newSubject;
 
-      //IMPORTANT!! always delete old first
-      oldSubject.deleteFromPrefs();
-      newSubject.saveToPrefs();
-      saveSubjectsToPrefs();
+      newSubject.updateInDatabase();
+
       notifyListeners();
     }
   }
 
   void removeSubject(Subject subject) {
     subjects.remove(subject);
-    subject.deleteFromPrefs();
-    saveSubjectsToPrefs();
+    subject.deleteFromDatabase();
     notifyListeners();
   }
 
-  Future<void> saveSubjectsToPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> subjectNames = subjects.map((subject) => subject.name).toList();
-    await prefs.setStringList('subject_names', subjectNames);
-  }
-
-  Future<void> loadSubjectsFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? subjectNames = prefs.getStringList('subject_names');
-    if (subjectNames != null) {
-      subjects.clear();
-      for (String name in subjectNames) {
-        Subject subject = Subject(newName: name, newWeight: 0, newGrade: 0, newSure: true);
-        await subject.loadFromPrefs(name);
-        subjects.add(subject);
-      }
-    }
+  Future<void> loadSubjectsFromDatabase() async {
+    subjects = await DatabaseHelper().getSubjects();
     notifyListeners();
   }
 
-  int calculateTotalWeight(){
+  int calculateTotalWeight() {
     int totalWeight = 0;
-    for(var subject in subjects){
+    for (var subject in subjects) {
       totalWeight += subject.weight;
     }
     return totalWeight;
   }
 
-  void removeAllSubjects(){
-
-    for(var subject in subjects) {
-      subject.deleteFromPrefs();
+  void removeAllSubjects() {
+    for (var subject in subjects) {
+      subject.deleteFromDatabase();
     }
-
     subjects.clear();
-    saveSubjectsToPrefs();
     notifyListeners();
   }
 
