@@ -21,7 +21,7 @@ class DatabaseHelper {
       path,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE subjects(name TEXT PRIMARY KEY, weight INTEGER, grade INTEGER, sure INTEGER)',
+          'CREATE TABLE subjects(name TEXT PRIMARY KEY, weight INTEGER, grade INTEGER, sure INTEGER, seqnum INTEGER)',
         );
       },
       version: 1,
@@ -58,7 +58,7 @@ class DatabaseHelper {
 
   Future<List<Subject>> getSubjects() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('subjects');
+    final List<Map<String, dynamic>> maps = await db.query('subjects', orderBy: 'seqnum');
 
     return List.generate(maps.length, (i) {
       return Subject(
@@ -66,6 +66,7 @@ class DatabaseHelper {
         newWeight: maps[i]['weight'],
         newGrade: maps[i]['grade'],
         newSure: maps[i]['sure'] == 1,
+        newSeqnum: maps[i]['seqnum'],
       );
     });
   }
@@ -76,12 +77,14 @@ class Subject {
   late int weight;
   late int grade;
   late bool sure;
+  late int seqnum;
 
-  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure}) {
+  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum}) {
     name = newName;
     weight = newWeight;
     grade = newGrade;
     sure = newSure;
+    seqnum = newSeqnum;
   }
 
   Map<String, dynamic> toMap() {
@@ -90,6 +93,7 @@ class Subject {
       'weight': weight,
       'grade': grade,
       'sure': sure ? 1 : 0,
+      'seqnum': seqnum,
     };
   }
 
@@ -129,7 +133,6 @@ class SubjectList extends ChangeNotifier {
     int index = subjects.indexOf(oldSubject);
     if (index != -1) {
       subjects[index] = newSubject;
-
       newSubject.updateInDatabase();
 
       notifyListeners();
@@ -139,6 +142,18 @@ class SubjectList extends ChangeNotifier {
   void removeSubject(Subject subject) {
     subjects.remove(subject);
     subject.deleteFromDatabase();
+
+    //updating seqnums after deletion
+    updateSubjectSeqnums();
+    notifyListeners();
+  }
+
+  void updateSubjectSeqnums(){
+    for(int i=0; i<subjects.length; i++){
+      Subject currentSubject = subjects[i];
+      currentSubject.seqnum = i;
+      currentSubject.updateInDatabase();
+    }
     notifyListeners();
   }
 

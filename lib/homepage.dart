@@ -183,7 +183,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -201,11 +200,11 @@ class _MyHomePageState extends State<MyHomePage> {
             tooltip: 'Beállítások',
           ),
           IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/info');
-              },
-              icon: const Icon(Icons.info),
-              tooltip: 'Információ',
+            onPressed: () {
+              Navigator.pushNamed(context, '/info');
+            },
+            icon: const Icon(Icons.info),
+            tooltip: 'Információ',
           )
         ],
       ),
@@ -230,7 +229,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   //if summarizedCreditIndex is set to visible
                   if (_showSummarizedCreditIndexCard) summarizedIndexPanel,
-                  if (_showSummarizedCreditIndexCard) const SizedBox(height: 10),
+                  if (_showSummarizedCreditIndexCard)
+                    const SizedBox(height: 10),
 
                   //if creditIndex is set to visible
                   if (_showCreditIndexCard) indexPanel,
@@ -248,88 +248,111 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
-                  ListView.builder(
+                  ReorderableListView(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: subjectList.size(),
-                    itemBuilder: (BuildContext context, int index) {
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        //Generic reordable behavior
+                        if (newIndex > oldIndex) {
+                          newIndex -= 1;
+                        }
+                        final Subject item = subjectList.subjects.removeAt(oldIndex);
+                        subjectList.subjects.insert(newIndex, item);
+
+                        subjectList.updateSubjectSeqnums();
+                      });
+                    },
+                    children: List.generate(subjectList.size(), (index) {
                       Subject subject = subjectList.subjects[index];
-                      return Slidable(
+                      return Padding(
                         key: Key(subject.name),
-                        startActionPane: ActionPane(
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                                onPressed: (BuildContext context) {
-                                  _showEditSubjectDialog(context, subject);
-                                },
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              icon: Icons.edit,
-                              label: 'Szerkesztés'
-                            )
-                          ],
-                        ),
-                        endActionPane: ActionPane(
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                                onPressed: (BuildContext context) {
-                                  _showDeletionReassuranceDialog(context, subject);
-                                },
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              icon: Icons.delete,
-                              label: 'Törlés',
-                            )
-                          ],
-                        ),
-                        child: Card(
-                          elevation: 3,
-                          child: ListTile(
-                            title: Text(
-                              subject.name,
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            textColor: getSubjectColor(subject.sure),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                Slider(
-                                  value: subject.grade.toDouble(),
-                                  min: 1,
-                                  max: 5,
-                                  divisions: 4,
-                                  label: subject.grade.toString(),
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      subject.setGrade(value.toInt());
-                                      reCalculateAllData();
-                                    });
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Slidable(
+                          key: Key(subject.name),
+                          startActionPane: ActionPane(
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                  onPressed: (BuildContext context) {
+                                    _showEditSubjectDialog(context, subject);
                                   },
-                                  activeColor: getSubjectColor(subject.sure),
+                                  borderRadius: BorderRadius.circular(15),
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit,
+                                  label: 'Szerkesztés')
+                            ],
+                          ),
+                          endActionPane: ActionPane(
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                onPressed: (BuildContext context) {
+                                  _showDeletionReassuranceDialog(
+                                      context, subject);
+                                },
+                                borderRadius: BorderRadius.circular(15),
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete,
+                                label: 'Törlés',
+                              )
+                            ],
+                          ),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            elevation: 4,
+                            child: ListTile(
+                              title: Text(
+                                subject.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
-                            leading: IconButton(
-                              icon: Icon(getSubjectIcon(subject.sure),
-                                  size: 30, color: getSubjectColor(subject.sure)),
-                              onPressed: () {
-                                setState(() {
-                                  subject.setSure();
-                                });
-                              },
-                              tooltip: 'Biztos vagyok benne',
+                              ),
+                              textColor: getSubjectColor(subject.sure),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Kredit: ${subject.weight}, Jegy: ${subject.grade}",
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                  Slider(
+                                    value: subject.grade.toDouble(),
+                                    min: 1,
+                                    max: 5,
+                                    divisions: 4,
+                                    label: subject.grade.toString(),
+                                    onChanged: (double value) {
+                                      setState(() {
+                                        subject.setGrade(value.toInt());
+                                        reCalculateAllData();
+                                      });
+                                    },
+                                    activeColor: getSubjectColor(subject.sure),
+                                  ),
+                                ],
+                              ),
+                              leading: IconButton(
+                                icon: Icon(
+                                  getSubjectIcon(subject.sure),
+                                  size: 30,
+                                  color: getSubjectColor(subject.sure),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    subject.setSure();
+                                  });
+                                },
+                                tooltip: 'Biztos vagyok benne',
+                              ),
                             ),
                           ),
                         ),
                       );
-                    },
+                    }),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -384,7 +407,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return validCreditRegex.hasMatch(value);
   }
 
-  Future<void> _showSubjectDialog(BuildContext context, {Subject? subject}) async {
+  Future<void> _showSubjectDialog(BuildContext context,
+      {Subject? subject}) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
 
@@ -403,7 +427,9 @@ class _MyHomePageState extends State<MyHomePage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text(subject == null ? 'Új tárgy felvétele' : 'Tárgy szerkesztése'),
+              title: Text(subject == null
+                  ? 'Új tárgy felvétele'
+                  : 'Tárgy szerkesztése'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -412,7 +438,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Név',
-                      errorText: isNameEmpty ? 'A név nem lehet üres!' : (isNameUnique ? null : 'A név már létezik!'),
+                      errorText: isNameEmpty
+                          ? 'A név nem lehet üres!'
+                          : (isNameUnique ? null : 'A név már létezik!'),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -425,7 +453,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: weightController,
                     decoration: InputDecoration(
                       labelText: 'Kredit',
-                      errorText: isCreditValid ? null : 'Egy vagy két számjegyet írj be!',
+                      errorText: isCreditValid
+                          ? null
+                          : 'Egy vagy két számjegyet írj be!',
                     ),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
@@ -444,46 +474,62 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Text('Mégse'),
                 ),
                 TextButton(
-                  onPressed: isNameEmpty || !isNameUnique || !isCreditValid ? null :() {
-                    setState(() {
-                      isCreditValid = creditValidation(weightController.text);
-                      isNameUnique = nameIsUnique(nameController.text, subject != null);
-                      isNameEmpty = nameController.text.isEmpty;
-                    });
+                  onPressed: isNameEmpty || !isNameUnique || !isCreditValid
+                      ? null
+                      : () {
+                          setState(() {
+                            isCreditValid =
+                                creditValidation(weightController.text);
+                            isNameUnique = nameIsUnique(
+                                nameController.text, subject != null);
+                            isNameEmpty = nameController.text.isEmpty;
+                          });
 
-                    String name = nameController.text.trim();
-                    int weight = int.tryParse(weightController.text) ?? 200;
-                    int grade = 5;
-                    bool sure = true;
+                          String name = nameController.text.trim();
+                          int weight =
+                              int.tryParse(weightController.text) ?? 200;
+                          int grade = 5;
+                          bool sure = true;
+                          int seqnum = subjectList.size();
 
-                    //values depend on what you modify in the dialog
-                    if(subject != null){
-                      name = name == subject.name ? subject.name : nameController.text.trim();
-                      weight = weight == subject.weight ? subject.weight : int.tryParse(weightController.text) ?? 200;
-                      grade = subject.grade;
-                      sure = subject.sure;
-                    }
+                          //values depend on what you modify in the dialog
+                          if (subject != null) {
+                            name = name == subject.name
+                                ? subject.name
+                                : nameController.text.trim();
+                            weight = weight == subject.weight
+                                ? subject.weight
+                                : int.tryParse(weightController.text) ?? 200;
+                            grade = subject.grade;
+                            sure = subject.sure;
+                            seqnum = subject.seqnum;
+                          }
 
-                    if (!isNameEmpty && isNameUnique && isCreditValid) {
-                      Subject newSubject = Subject(
-                          newName: name, newWeight: weight, newGrade: grade, newSure: sure);
+                          if (!isNameEmpty && isNameUnique && isCreditValid) {
+                            //Necessary to create new subject here and also to set seqnum, although it could be handled by subjectlist class, but this way it's consistent
+                            Subject newSubject = Subject(
+                                newName: name,
+                                newWeight: weight,
+                                newGrade: grade,
+                                newSure: sure,
+                                newSeqnum: seqnum);
 
-                      setState(() {
-                        if (subject == null) {
-                          //Adding new subject
-                          subjectList.addSubject(newSubject);
-                          _creditCount += weight;
-                        } else {
-                          //Editing old subject
-                          subjectList.modifySubject(subject, newSubject);
-                          _creditCount -= subject.weight;
-                          _creditCount += weight;
-                        }
-                        reCalculateAllData();
-                      });
-                      Navigator.of(context).pop(); //Close dialog
-                    }
-                  },
+                            setState(() {
+                              if (subject == null) {
+                                //Adding new subject
+                                subjectList.addSubject(newSubject);
+                                _creditCount += weight;
+                              } else {
+                                //Editing old subject
+                                subjectList.modifySubject(subject, newSubject);
+                                _creditCount -= subject.weight;
+                                _creditCount += weight;
+                              }
+                              reCalculateAllData();
+                            });
+                            Navigator.of(context).pop(); //Close dialog
+                          }
+                        },
                   child: Text(subject == null ? 'Hozzáadás' : 'Mentés'),
                 ),
               ],
@@ -498,7 +544,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return _showSubjectDialog(context);
   }
 
-  Future<void> _showEditSubjectDialog(BuildContext context, Subject oldSubject) async {
+  Future<void> _showEditSubjectDialog(
+      BuildContext context, Subject oldSubject) async {
     return _showSubjectDialog(context, subject: oldSubject);
   }
 
@@ -511,7 +558,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (BuildContext context,  setState) {
+          builder: (BuildContext context, setState) {
             return AlertDialog(
               title: const Text("Előző félévben a kreditindexed:"),
               content: Column(
@@ -558,7 +605,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     } else {
                       SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
+                          await SharedPreferences.getInstance();
                       await prefs.setDouble(
                           'earlierCreditIndex', _earlierCreditIndex);
                       setState(() {
@@ -574,7 +621,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             );
           },
-
         );
       },
     );
@@ -588,7 +634,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool nameIsUnique(String name, bool modifyingSubject) {
-    if(modifyingSubject) return true;
+    if (modifyingSubject) return true;
     name = name.trim().toLowerCase();
     for (var subject in subjectList.subjects) {
       if (subject.name.toLowerCase() == name) {
