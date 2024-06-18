@@ -141,6 +141,20 @@ class InfoPage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               Text(
+                'Tárgyak átrendezése',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'Tartsuk nyomva egy tárgy kártyáját, és húzzuk a kívánt pozícióba, így átrendezhetjük a tárgyaink sorrendjét.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
                 'Osztó értéke',
                 style: TextStyle(
                     fontSize: 20,
@@ -162,7 +176,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '1.1.0.1',
+                '1.2.1.1',
                 style: TextStyle(
                   fontSize: 17,
                 ),
