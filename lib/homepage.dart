@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:kreditindex_calculator/result_panel.dart';
-
-import 'credit_division_notifier.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -17,18 +16,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _creditCount = 0;
-  int _finalCreditCount = 0;
 
-  double _earlierCreditIndex = 0.0;
+  //double _earlierCreditIndex = 0.0;
 
   late SubjectList subjectList;
-
-  //Calculated values for cards
-  double _creditIndex = 0.0;
-  double _summarizedCreditIndex = 0.0;
-  double _weightedCreditIndex = 0.0;
-  double _average = 0.0;
+  late Statistics statistics;
 
   //Statistical cards shown on top
   late ResultPanel indexPanel;
@@ -53,27 +45,28 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     subjectList = Provider.of<SubjectList>(context, listen: false);
+    statistics = Statistics(newSubjectList: subjectList, newContext: context);
 
     indexPanel = ResultPanel(
         name: 'Kreditindex',
-        initialValue: _creditIndex,
+        initialValue: statistics.creditIndex,
         panelColor: Colors.blueAccent,
         key: indexPanelKey);
     summarizedIndexPanel = ClickableResultPanel(
       name: 'Kreditindex a korábbi félévvel együtt',
-      initialValue: _summarizedCreditIndex,
+      initialValue: statistics.summarizedCreditIndex,
       panelColor: Colors.deepPurpleAccent,
       key: summarizedIndexPanelKey,
       onTap: () => _showSetEarlierCreditIndex(context),
     );
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
-        initialValue: _weightedCreditIndex,
+        initialValue: statistics.weightedCreditIndex,
         panelColor: Colors.deepOrangeAccent,
         key: weightedPanelKey);
     averagePanel = ResultPanel(
         name: 'Átlag',
-        initialValue: _average,
+        initialValue: statistics.average,
         panelColor: Colors.redAccent,
         key: averagePanelKey);
 
@@ -83,16 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadAllSavedData() async {
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
-    await loadEarlierCreditIndex();
+    await statistics.loadEarlierCreditIndex();
     setState(() {});
-  }
-
-  Future<void> loadEarlierCreditIndex() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _earlierCreditIndex = prefs.getDouble('earlierCreditIndex') ?? 0.0;
-      reCalculateAllData();
-    });
   }
 
   Future<void> loadSavedCardVisibilityData() async {
@@ -110,8 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadSavedSubjectData() async {
     await subjectList.loadSubjectsFromDatabase();
     setState(() {
-      _creditCount = subjectList.calculateTotalWeight();
-      reCalculateAllData();
+      updateAllData();
     });
   }
 
@@ -123,79 +107,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return sure ? Icons.bookmark_added : Icons.bookmark;
   }
 
-  void reCalculateFinalCreditCount() {
-    _finalCreditCount = _creditCount;
-
-    setState(() {
-      for (var subject in subjectList.subjects) {
-        if (subject.grade < 2) {
-          _finalCreditCount -= subject.weight;
-        }
-      }
-    });
+  void updateAllData() {
+    statistics.calculateAllData();
+    setPanelData();
   }
 
-  void reCalculateCreditIndex(int creditDivisionNumber) {
-    int sum = 0;
-    for (var subject in subjectList.subjects) {
-      if (subject.grade > 1) {
-        sum += subject.weight * subject.grade;
-      }
-    }
-
-    _creditIndex = sum / creditDivisionNumber.toDouble();
-
+  void setPanelData() {
     setState(() {
-      indexPanelKey.currentState?.updateValue(_creditIndex);
+      indexPanelKey.currentState?.updateValue(statistics.creditIndex);
+      summarizedIndexPanelKey.currentState?.updateValue(statistics.summarizedCreditIndex);
+      weightedPanelKey.currentState?.updateValue(statistics.weightedCreditIndex);
+      averagePanelKey.currentState?.updateValue(statistics.average);
     });
-  }
-
-  void reCalculateAverage() {
-    int sum = 0;
-    for (var subject in subjectList.subjects) {
-      sum += subject.grade;
-    }
-
-    _average = subjectList.size() == 0 ? 0.0 : sum / subjectList.size();
-
-    setState(() {
-      averagePanelKey.currentState?.updateValue(_average);
-    });
-  }
-
-  void reCalculateWeightedCreditIndex() {
-    int sum = 0;
-    for (var subject in subjectList.subjects) {
-      if (subject.grade > 1) {
-        sum += subject.weight * subject.grade;
-      }
-    }
-
-    _weightedCreditIndex = _creditCount == 0 ? 0.0 : sum / _creditCount.toDouble();
-
-    setState(() {
-      weightedPanelKey.currentState?.updateValue(_weightedCreditIndex);
-    });
-  }
-
-  void reCalculateSummarizedCreditIndex(int creditDivisionNumber) {
-    _summarizedCreditIndex = (_creditIndex + _earlierCreditIndex) / 2.0;
-
-    setState(() {
-      summarizedIndexPanelKey.currentState?.updateValue(_summarizedCreditIndex);
-    });
-  }
-
-  void reCalculateAllData() {
-    int creditDivisionNumber =
-        context.read<CreditDivisionNotifier>().creditDivisionNumber;
-    reCalculateCreditIndex(creditDivisionNumber);
-    reCalculateSummarizedCreditIndex(creditDivisionNumber);
-    reCalculateAverage();
-    reCalculateWeightedCreditIndex();
-
-    _creditCount = subjectList.calculateTotalWeight();
-    reCalculateFinalCreditCount();
   }
 
   @override
@@ -212,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //Delay is needed for all data to be loaded so the content of the cards can be shown
                   Future.delayed(const Duration(milliseconds: 200), () {
                     setState(() {
-                      reCalculateAllData();
+                      updateAllData();
                     });
                   });
                 });
@@ -239,12 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "Felvett kreditek száma: $_creditCount",
+                    "Felvett kreditek száma: ${statistics.creditCount}",
                     style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Teljesített kreditek száma: $_finalCreditCount",
+                    "Teljesített kreditek száma: ${statistics.finalCreditCount}",
                     style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
@@ -350,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     onChanged: (double value) {
                                       setState(() {
                                         subject.setGrade(value.toInt());
-                                        reCalculateAllData();
+                                        updateAllData();
                                       });
                                     },
                                     activeColor: getSubjectColor(subject.sure),
@@ -404,9 +327,8 @@ class _MyHomePageState extends State<MyHomePage> {
               TextButton(
                   onPressed: () {
                     setState(() {
-                      _creditCount -= subject.weight;
                       subjectList.removeSubject(subject);
-                      reCalculateAllData();
+                      updateAllData();
                     });
                     Navigator.of(context).pop();
                   },
@@ -540,14 +462,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               if (subject == null) {
                                 //Adding new subject
                                 subjectList.addSubject(newSubject);
-                                _creditCount += weight;
                               } else {
                                 //Editing old subject
                                 subjectList.modifySubject(subject, newSubject);
-                                _creditCount -= subject.weight;
-                                _creditCount += weight;
                               }
-                              reCalculateAllData();
+                              updateAllData();
                             });
                             Navigator.of(context).pop(); //Close dialog
                           }
@@ -573,7 +492,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _showSetEarlierCreditIndex(BuildContext context) async {
     TextEditingController earlierCreditController =
-        TextEditingController(text: _earlierCreditIndex.toString());
+        TextEditingController(text: statistics.earlierCreditIndex.toString());
     bool hasError = false;
 
     return showDialog(
@@ -598,8 +517,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (validInput.hasMatch(earlierCreditController.text)) {
                           setState(() {
                             hasError = false;
-                            double parsedValue = double.tryParse(value) ?? 0.0;
-                            _earlierCreditIndex = parsedValue;
                           });
                         } else {
                           setState(() {
@@ -626,12 +543,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       );
                     } else {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      await prefs.setDouble(
-                          'earlierCreditIndex', _earlierCreditIndex);
+                      double value = double.tryParse(earlierCreditController.text) ?? 0.0;
+                      statistics.saveEarlierCreditIndex(value);
                       setState(() {
-                        reCalculateAllData();
+                        updateAllData();
                       });
                       Navigator.of(context).pop();
                     }
