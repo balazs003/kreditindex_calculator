@@ -80,15 +80,14 @@ class _MyHomePageState extends State<MyHomePage> {
     loadAllSavedData();
   }
 
-  void loadAllSavedData() {
-    setState(() {
-      loadSavedSubjectData();
-      loadSavedCardVisibilityData();
-      loadEarlierCreditIndex();
-    });
+  Future<void> loadAllSavedData() async {
+    await loadSavedSubjectData();
+    await loadSavedCardVisibilityData();
+    await loadEarlierCreditIndex();
+    setState(() {});
   }
 
-  void loadEarlierCreditIndex() async {
+  Future<void> loadEarlierCreditIndex() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _earlierCreditIndex = prefs.getDouble('earlierCreditIndex') ?? 0.0;
@@ -96,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void loadSavedCardVisibilityData() async {
+  Future<void> loadSavedCardVisibilityData() async {
     var prefs = await SharedPreferences.getInstance();
     setState(() {
       _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
@@ -108,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void loadSavedSubjectData() async {
+  Future<void> loadSavedSubjectData() async {
     await subjectList.loadSubjectsFromDatabase();
     setState(() {
       _creditCount = subjectList.calculateTotalWeight();
@@ -148,15 +147,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {
       indexPanelKey.currentState?.updateValue(_creditIndex);
-    });
-  }
-
-  void setPanelData() {
-    setState(() {
-      indexPanelKey.currentState?.updateValue(_creditIndex);
-      summarizedIndexPanelKey.currentState?.updateValue(_summarizedCreditIndex);
-      weightedPanelKey.currentState?.updateValue(_weightedCreditIndex);
-      averagePanelKey.currentState?.updateValue(_average);
     });
   }
 
@@ -206,8 +196,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _creditCount = subjectList.calculateTotalWeight();
     reCalculateFinalCreditCount();
-
-    setPanelData();
   }
 
   @override
@@ -219,9 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/settings').then((_) {
-                setState(() {
-                  loadAllSavedData();
+              Navigator.pushNamed(context, '/settings').then((_) async {
+                await loadAllSavedData().then((_) {
                   //Delay is needed for all data to be loaded so the content of the cards can be shown
                   Future.delayed(const Duration(milliseconds: 200), () {
                     setState(() {
