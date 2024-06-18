@@ -3,6 +3,7 @@ import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:kreditindex_calculator/result_panel.dart';
 
 import 'credit_division_notifier.dart';
 
@@ -19,18 +20,27 @@ class _MyHomePageState extends State<MyHomePage> {
   int _creditCount = 0;
   int _finalCreditCount = 0;
 
-  //earlier creditIndex
   double _earlierCreditIndex = 0.0;
 
   late SubjectList subjectList;
+
+  //Calculated values for cards
+  double _creditIndex = 0.0;
+  double _summarizedCreditIndex = 0.0;
+  double _weightedCreditIndex = 0.0;
+  double _average = 0.0;
+
+  //Statistical cards shown on top
   late ResultPanel indexPanel;
   late ResultPanel summarizedIndexPanel;
   late ResultPanel averagePanel;
   late ResultPanel weightedPanel;
-  final GlobalKey<_ResultPanelState> indexPanelKey = GlobalKey();
-  final GlobalKey<_ResultPanelState> summarizedIndexPanelKey = GlobalKey();
-  final GlobalKey<_ResultPanelState> averagePanelKey = GlobalKey();
-  final GlobalKey<_ResultPanelState> weightedPanelKey = GlobalKey();
+
+  //Keys to delegate state changing for resultpanel cards
+  final GlobalKey<ResultPanelState> indexPanelKey = GlobalKey();
+  final GlobalKey<ResultPanelState> summarizedIndexPanelKey = GlobalKey();
+  final GlobalKey<ResultPanelState> averagePanelKey = GlobalKey();
+  final GlobalKey<ResultPanelState> weightedPanelKey = GlobalKey();
 
   //Switch states for result cards
   bool _showCreditIndexCard = true;
@@ -46,40 +56,56 @@ class _MyHomePageState extends State<MyHomePage> {
 
     indexPanel = ResultPanel(
         name: 'Kreditindex',
-        initialValue: 0.0,
+        initialValue: _creditIndex,
         panelColor: Colors.blueAccent,
         key: indexPanelKey);
     summarizedIndexPanel = ClickableResultPanel(
       name: 'Kreditindex a korábbi félévvel együtt',
-      initialValue: 0.0,
+      initialValue: _summarizedCreditIndex,
       panelColor: Colors.deepPurpleAccent,
       key: summarizedIndexPanelKey,
       onTap: () => _showSetEarlierCreditIndex(context),
     );
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
-        initialValue: 0.0,
+        initialValue: _weightedCreditIndex,
         panelColor: Colors.deepOrangeAccent,
         key: weightedPanelKey);
     averagePanel = ResultPanel(
         name: 'Átlag',
-        initialValue: 0.0,
+        initialValue: _average,
         panelColor: Colors.redAccent,
         key: averagePanelKey);
 
-    loadSavedSubjectData();
-    loadSavedCardVisibilityData();
-    loadEarlierCreditIndex();
+    loadAllSavedData();
+  }
+
+  void loadAllSavedData() {
+    setState(() {
+      loadSavedSubjectData();
+      loadSavedCardVisibilityData();
+      loadEarlierCreditIndex();
+    });
+  }
+
+  void loadEarlierCreditIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _earlierCreditIndex = prefs.getDouble('earlierCreditIndex') ?? 0.0;
+      reCalculateAllData();
+    });
   }
 
   void loadSavedCardVisibilityData() async {
     var prefs = await SharedPreferences.getInstance();
-    _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
-    _showSummarizedCreditIndexCard =
-        prefs.getBool('summarizedCreditIndexVisible') ?? true;
-    _showWeightedCreditIndexCard =
-        prefs.getBool('weightedCreditIndexVisible') ?? true;
-    _showAverageCard = prefs.getBool('averageVisible') ?? true;
+    setState(() {
+      _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
+      _showSummarizedCreditIndexCard =
+          prefs.getBool('summarizedCreditIndexVisible') ?? true;
+      _showWeightedCreditIndexCard =
+          prefs.getBool('weightedCreditIndexVisible') ?? true;
+      _showAverageCard = prefs.getBool('averageVisible') ?? true;
+    });
   }
 
   void loadSavedSubjectData() async {
@@ -101,11 +127,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void reCalculateFinalCreditCount() {
     _finalCreditCount = _creditCount;
 
-    for (var subject in subjectList.subjects) {
-      if (subject.grade < 2) {
-        _finalCreditCount -= subject.weight;
+    setState(() {
+      for (var subject in subjectList.subjects) {
+        if (subject.grade < 2) {
+          _finalCreditCount -= subject.weight;
+        }
       }
-    }
+    });
   }
 
   void reCalculateCreditIndex(int creditDivisionNumber) {
@@ -116,10 +144,19 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    double creditIndex = sum / creditDivisionNumber.toDouble();
+    _creditIndex = sum / creditDivisionNumber.toDouble();
 
     setState(() {
-      indexPanelKey.currentState?.updateValue(creditIndex);
+      indexPanelKey.currentState?.updateValue(_creditIndex);
+    });
+  }
+
+  void setPanelData() {
+    setState(() {
+      indexPanelKey.currentState?.updateValue(_creditIndex);
+      summarizedIndexPanelKey.currentState?.updateValue(_summarizedCreditIndex);
+      weightedPanelKey.currentState?.updateValue(_weightedCreditIndex);
+      averagePanelKey.currentState?.updateValue(_average);
     });
   }
 
@@ -129,10 +166,10 @@ class _MyHomePageState extends State<MyHomePage> {
       sum += subject.grade;
     }
 
-    double average = subjectList.size() == 0 ? 0.0 : sum / subjectList.size();
+    _average = subjectList.size() == 0 ? 0.0 : sum / subjectList.size();
 
     setState(() {
-      averagePanelKey.currentState?.updateValue(average);
+      averagePanelKey.currentState?.updateValue(_average);
     });
   }
 
@@ -144,28 +181,18 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    double weightedCreditIndex =
-        _creditCount == 0 ? 0.0 : sum / _creditCount.toDouble();
+    _weightedCreditIndex = _creditCount == 0 ? 0.0 : sum / _creditCount.toDouble();
 
     setState(() {
-      weightedPanelKey.currentState?.updateValue(weightedCreditIndex);
+      weightedPanelKey.currentState?.updateValue(_weightedCreditIndex);
     });
   }
 
   void reCalculateSummarizedCreditIndex(int creditDivisionNumber) {
-    int sum = 0;
-    for (var subject in subjectList.subjects) {
-      if (subject.grade > 1) {
-        sum += subject.weight * subject.grade;
-      }
-    }
-
-    double creditIndex = sum / creditDivisionNumber.toDouble();
-
-    double summarizedCreditIndex = (creditIndex + _earlierCreditIndex) / 2.0;
+    _summarizedCreditIndex = (_creditIndex + _earlierCreditIndex) / 2.0;
 
     setState(() {
-      summarizedIndexPanelKey.currentState?.updateValue(summarizedCreditIndex);
+      summarizedIndexPanelKey.currentState?.updateValue(_summarizedCreditIndex);
     });
   }
 
@@ -179,6 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _creditCount = subjectList.calculateTotalWeight();
     reCalculateFinalCreditCount();
+
+    setPanelData();
   }
 
   @override
@@ -192,7 +221,13 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               Navigator.pushNamed(context, '/settings').then((_) {
                 setState(() {
-                  Navigator.pushReplacementNamed(context, '/');
+                  loadAllSavedData();
+                  //Delay is needed for all data to be loaded so the content of the cards can be shown
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    setState(() {
+                      reCalculateAllData();
+                    });
+                  });
                 });
               });
             },
@@ -626,13 +661,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void loadEarlierCreditIndex() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _earlierCreditIndex = prefs.getDouble('earlierCreditIndex') ?? 0.0;
-    });
-  }
-
   bool nameIsUnique(String name, bool modifyingSubject) {
     if (modifyingSubject) return true;
     name = name.trim().toLowerCase();
@@ -642,142 +670,5 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     return true;
-  }
-}
-
-class ResultPanel extends StatefulWidget {
-  final String name;
-  late double initialValue;
-  final Color panelColor;
-
-  ResultPanel(
-      {Key? key,
-      required this.name,
-      required this.initialValue,
-      required this.panelColor})
-      : super(key: key);
-
-  get onTap => null;
-
-  @override
-  _ResultPanelState createState() => _ResultPanelState();
-}
-
-class _ResultPanelState extends State<ResultPanel> {
-  late double value;
-
-  @override
-  void initState() {
-    super.initState();
-    value = widget.initialValue;
-  }
-
-  void updateValue(double newValue) {
-    setState(() {
-      value = newValue;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: widget.panelColor,
-        borderRadius: BorderRadius.circular(15.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10.0,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            widget.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18.0,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            value.toStringAsFixed(2),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 30.0,
-            ),
-            textAlign: TextAlign.center,
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class ClickableResultPanel extends ResultPanel {
-  @override
-  final VoidCallback onTap;
-
-  ClickableResultPanel({
-    super.key,
-    required super.name,
-    required super.initialValue,
-    required super.panelColor,
-    required this.onTap,
-  });
-
-  @override
-  _ClickableResultPanelState createState() => _ClickableResultPanelState();
-}
-
-class _ClickableResultPanelState extends _ResultPanelState {
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: widget.onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20.0),
-        decoration: BoxDecoration(
-          color: widget.panelColor,
-          borderRadius: BorderRadius.circular(15.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10.0,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              widget.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18.0,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value.toStringAsFixed(2),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 30.0,
-              ),
-              textAlign: TextAlign.center,
-            )
-          ],
-        ),
-      ),
-    );
   }
 }
