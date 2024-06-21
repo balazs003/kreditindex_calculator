@@ -2,27 +2,32 @@ import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
 class Subject {
+  final int? id;
   late String name;
   late int weight;
   late int grade;
   late bool sure;
   late int seqnum;
+  late int semester;
 
-  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum}) {
+  Subject(this.id, {required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester}) {
     name = newName;
     weight = newWeight;
     grade = newGrade;
     sure = newSure;
     seqnum = newSeqnum;
+    semester = newSemester;
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'weight': weight,
       'grade': grade,
       'sure': sure ? 1 : 0,
       'seqnum': seqnum,
+      'semester': semester,
     };
   }
 
@@ -45,7 +50,7 @@ class Subject {
   }
 
   void deleteFromDatabase() async {
-    await DatabaseHelper().deleteSubject(name);
+    await DatabaseHelper().deleteSubject(this);
   }
 }
 
