@@ -17,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  //double _earlierCreditIndex = 0.0;
+  int currentSemester = 1;
 
   late SubjectList subjectList;
   late Statistics statistics;
@@ -121,12 +121,35 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  List<Widget> buildSemesterList(int semesterCount){
+    List<Widget> semesters = [];
+    for(int i=1; i<=semesterCount; i++){
+      semesters.add(
+        ListTile(
+          title: Text('$i. félév'),
+          onTap: () {
+            onTapSemester(i);
+          },
+        )
+      );
+    }
+
+    return semesters;
+  }
+
+  void onTapSemester(int semesterNumber){
+    //TODO load actual semester data
+    currentSemester = semesterNumber;
+    Navigator.pop(context);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text('$currentSemester. félév'),
         actions: [
           IconButton(
             onPressed: () {
@@ -152,6 +175,15 @@ class _MyHomePageState extends State<MyHomePage> {
             tooltip: 'Információ',
           )
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(child: Text('ÁtlagoSCH')),
+            ...buildSemesterList(11)
+          ],
+        ),
       ),
       body: Consumer<SubjectList>(
         builder: (context, subjectList, child) => SingleChildScrollView(
@@ -452,11 +484,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (!isNameEmpty && isNameUnique && isCreditValid) {
                             //Necessary to create new subject here and also to set seqnum, although it could be handled by subjectlist class, but this way it's consistent
                             Subject newSubject = Subject(
+                                null, //ID
                                 newName: name,
                                 newWeight: weight,
                                 newGrade: grade,
                                 newSure: sure,
-                                newSeqnum: seqnum);
+                                newSeqnum: seqnum,
+                                newSemester: currentSemester);
 
                             setState(() {
                               if (subject == null) {
