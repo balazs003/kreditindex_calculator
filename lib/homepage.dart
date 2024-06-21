@@ -70,14 +70,27 @@ class _MyHomePageState extends State<MyHomePage> {
         panelColor: Colors.redAccent,
         key: averagePanelKey);
 
-    loadAllSavedData();
+    loadAllSavedData().then((_) {
+      //Delay is needed for all data to be loaded so the content of the cards can be shown
+      Future.delayed(const Duration(milliseconds: 200), () {
+        setState(() {
+          updateAllData();
+        });
+      });
+    });
+
+    //important on init and when changing semester in hamburger menu
   }
 
   Future<void> loadAllSavedData() async {
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
     await statistics.loadEarlierCreditIndex();
-    setState(() {});
+
+    //setting the data to show currently
+    setState(() {
+      subjectList.setCurrentSemesterNumber(currentSemester);
+    });
   }
 
   Future<void> loadSavedCardVisibilityData() async {
@@ -112,12 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void updateAllData() {
-    statistics.calculateAllData(currentSemester);
+    statistics.calculateAllData();
     setPanelData();
-    print('Adatok frissitve');
-    for(var subject in subjectList.subjects){
-      print('${subject.name} ${subject.id}${subject.semester}');
-    }
   }
 
   void setPanelData() {
@@ -147,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onTapSemester(int semesterNumber){
     currentSemester = semesterNumber;
+    subjectList.setCurrentSemesterNumber(currentSemester);
     updateAllData();
     Navigator.pop(context);
     setState(() {});
@@ -241,19 +251,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (newIndex > oldIndex) {
                           newIndex -= 1;
                         }
-                        final Subject item = subjectList.subjects.removeAt(oldIndex);
-                        subjectList.subjects.insert(newIndex, item);
-
-                        subjectList.updateSubjectSeqnums();
+                        subjectList.reorderSubjects(newIndex, oldIndex);
                       });
                     },
-                    children: List.generate(subjectList.getCurrentSemesterSubjects(currentSemester).length, (index) {
-                      Subject subject = subjectList.getCurrentSemesterSubjects(currentSemester)[index];
+                    children: List.generate(subjectList.filteredSubjects.length, (index) {
+                      Subject subject = subjectList.filteredSubjects[index];
                       return Padding(
-                        key: Key(subject.name),
+                        key: Key(subject.id.toString()),
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Slidable(
-                          key: Key(subject.name),
+                          key: Key(subject.id.toString()),
                           startActionPane: ActionPane(
                             motion: const StretchMotion(),
                             children: [

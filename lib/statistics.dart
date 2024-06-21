@@ -43,25 +43,25 @@ class Statistics {
     creditDivisionNumber = _context.read<CreditDivisionNotifier>().creditDivisionNumber;
   }
 
-  void _calculateTotalWeight(int semesterNumber) {
+  void _calculateTotalWeight() {
     creditCount = 0;
-    for (var subject in _subjectList.getCurrentSemesterSubjects(semesterNumber)) {
+    for (var subject in _subjectList.filteredSubjects) {
       creditCount += subject.weight;
     }
   }
 
-  void _calculateFinalCreditCount(int semesterNumber) {
+  void _calculateFinalCreditCount() {
     finalCreditCount = creditCount;
-    for (var subject in _subjectList.getCurrentSemesterSubjects(semesterNumber)) {
+    for (var subject in _subjectList.filteredSubjects) {
       if (subject.grade < 2) {
         finalCreditCount -= subject.weight;
       }
     }
   }
 
-  void _calculateCreditIndex(int semesterNumber) {
+  void _calculateCreditIndex() {
     int sum = 0;
-    for (var subject in _subjectList.getCurrentSemesterSubjects(semesterNumber)) {
+    for (var subject in _subjectList.filteredSubjects) {
       if (subject.grade > 1) {
         sum += subject.weight * subject.grade;
       }
@@ -70,9 +70,9 @@ class Statistics {
     creditIndex = sum / creditDivisionNumber.toDouble();
   }
 
-  void _calculateWeightedCreditIndex(int semesterNumber) {
+  void _calculateWeightedCreditIndex() {
     int sum = 0;
-    for (var subject in _subjectList.getCurrentSemesterSubjects(semesterNumber)) {
+    for (var subject in _subjectList.filteredSubjects) {
       if (subject.grade > 1) {
         sum += subject.weight * subject.grade;
       }
@@ -85,22 +85,22 @@ class Statistics {
     summarizedCreditIndex = (creditIndex + earlierCreditIndex) / 2.0;
   }
 
-  void _calculateAverage(int semesterNumber) {
+  void _calculateAverage() {
     int sum = 0;
-    for (var subject in _subjectList.getCurrentSemesterSubjects(semesterNumber)) {
+    for (var subject in _subjectList.filteredSubjects) {
       sum += subject.grade;
     }
 
     average = _subjectList.size() == 0 ? 0.0 : sum / _subjectList.size();
   }
 
-  void calculateAllData(int semesterNumber){
+  void calculateAllData(){
     _setCreditDivisionNumber();
-    _calculateTotalWeight(semesterNumber);
-    _calculateCreditIndex(semesterNumber);
+    _calculateTotalWeight();
+    _calculateCreditIndex();
     _calculateSummarizedCreditIndex();
-    _calculateAverage(semesterNumber);
-    _calculateWeightedCreditIndex(semesterNumber);
-    _calculateFinalCreditCount(semesterNumber);
+    _calculateAverage();
+    _calculateWeightedCreditIndex();
+    _calculateFinalCreditCount();
   }
 }
