@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'database_helper.dart';
 
 class Subject {
-  final int? id;
+  late int id;
   late String name;
   late int weight;
   late int grade;
@@ -10,7 +10,8 @@ class Subject {
   late int seqnum;
   late int semester;
 
-  Subject(this.id, {required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester}) {
+  Subject({required int newId, required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester}) {
+    id = newId;
     name = newName;
     weight = newWeight;
     grade = newGrade;
@@ -21,7 +22,7 @@ class Subject {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      //'id': id,
       'name': name,
       'weight': weight,
       'grade': grade,
@@ -41,11 +42,11 @@ class Subject {
     updateInDatabase();
   }
 
-  void saveToDatabase() async {
+  Future<void> saveToDatabase() async {
     await DatabaseHelper().insertSubject(this);
   }
 
-  void updateInDatabase() async {
+  Future<void> updateInDatabase() async {
     await DatabaseHelper().updateSubject(this);
   }
 
@@ -57,19 +58,27 @@ class Subject {
 class SubjectList extends ChangeNotifier {
   List<Subject> subjects = [];
 
-  void addSubject(Subject subject) {
+  List<Subject> getCurrentSemesterSubjects(int semesterNumber){
+    List<Subject> filteredSubjects = [];
+    for(var subject in subjects){
+      if(subject.semester == semesterNumber){
+        filteredSubjects.add(subject);
+      }
+    }
+    return filteredSubjects;
+  }
+
+  void addSubject(Subject subject) async {
     subjects.add(subject);
     subject.saveToDatabase();
     notifyListeners();
   }
 
-  void modifySubject(Subject oldSubject, Subject newSubject) {
+  void modifySubject(Subject oldSubject, Subject newSubject) async {
     int index = subjects.indexOf(oldSubject);
-    if (index != -1) {
-      subjects[index] = newSubject;
-      newSubject.updateInDatabase();
-      notifyListeners();
-    }
+    subjects[index] = newSubject;
+    newSubject.updateInDatabase();
+    notifyListeners();
   }
 
   void removeSubject(Subject subject) {

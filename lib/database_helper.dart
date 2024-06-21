@@ -30,11 +30,18 @@ class DatabaseHelper {
 
   Future<void> insertSubject(Subject subject) async {
     final db = await database;
-    await db.insert(
+    final id = await db.insert(
       'subjects',
       subject.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    subject.id = id;
+
+    print('ADATBAZISBAN');
+    for(var subject in await getSubjects()){
+      print('${subject.name} ${subject.id}${subject.semester}');
+    }
   }
 
   Future<void> updateSubject(Subject subject) async {
@@ -60,11 +67,11 @@ class DatabaseHelper {
     final db = await database;
 
     //when loading data, subjects are grouped by the semester field, so when we modify the sequence, the seqnums will definitely be changed relative to the subjects in the same semester
-    final List<Map<String, dynamic>> maps = await db.query('subjects', groupBy: 'semester', orderBy: 'seqnum');
+    final List<Map<String, dynamic>> maps = await db.query('subjects', orderBy: 'seqnum');
 
     return List.generate(maps.length, (i) {
       return Subject(
-        maps[i]['id'],
+        newId: maps[i]['id'],
         newName: maps[i]['name'],
         newWeight: maps[i]['weight'],
         newGrade: maps[i]['grade'],

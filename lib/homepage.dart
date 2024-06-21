@@ -7,7 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:kreditindex_calculator/result_panel.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -97,6 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       updateAllData();
     });
+    print('BETOLTVE');
+    for(var subject in subjectList.subjects){
+      print('${subject.name} ${subject.id}${subject.semester}');
+    }
   }
 
   Color getSubjectColor(bool sure) {
@@ -108,8 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void updateAllData() {
-    statistics.calculateAllData();
+    statistics.calculateAllData(currentSemester);
     setPanelData();
+    print('Adatok frissitve');
+    for(var subject in subjectList.subjects){
+      print('${subject.name} ${subject.id}${subject.semester}');
+    }
   }
 
   void setPanelData() {
@@ -138,8 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onTapSemester(int semesterNumber){
-    //TODO load actual semester data
     currentSemester = semesterNumber;
+    updateAllData();
     Navigator.pop(context);
     setState(() {});
   }
@@ -206,8 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   //if summarizedCreditIndex is set to visible
                   if (_showSummarizedCreditIndexCard) summarizedIndexPanel,
-                  if (_showSummarizedCreditIndexCard)
-                    const SizedBox(height: 10),
+                  if (_showSummarizedCreditIndexCard) const SizedBox(height: 10),
 
                   //if creditIndex is set to visible
                   if (_showCreditIndexCard) indexPanel,
@@ -240,8 +247,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         subjectList.updateSubjectSeqnums();
                       });
                     },
-                    children: List.generate(subjectList.size(), (index) {
-                      Subject subject = subjectList.subjects[index];
+                    children: List.generate(subjectList.getCurrentSemesterSubjects(currentSemester).length, (index) {
+                      Subject subject = subjectList.getCurrentSemesterSubjects(currentSemester)[index];
                       return Padding(
                         key: Key(subject.name),
                         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -484,7 +491,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (!isNameEmpty && isNameUnique && isCreditValid) {
                             //Necessary to create new subject here and also to set seqnum, although it could be handled by subjectlist class, but this way it's consistent
                             Subject newSubject = Subject(
-                                null, //ID
+                                newId: -1,
                                 newName: name,
                                 newWeight: weight,
                                 newGrade: grade,
