@@ -17,7 +17,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  int currentSemester = 1;
+  late int currentSemester = 1;
+  String currentSemesterNumberKey = 'currentSemesterNumber';
 
   late SubjectList subjectList;
   late Statistics statistics;
@@ -80,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadAllSavedData() async {
+    await loadCurrentSemesterNumber();
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
 
@@ -87,6 +89,16 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       subjectList.setCurrentSemesterNumber(currentSemester);
     });
+  }
+
+  Future<void> saveCurrentSemesterNumber() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(currentSemesterNumberKey, currentSemester);
+  }
+
+  Future<void> loadCurrentSemesterNumber() async {
+    var prefs = await SharedPreferences.getInstance();
+    currentSemester = prefs.getInt(currentSemesterNumberKey) ?? 1;
   }
 
   Future<void> loadSavedCardVisibilityData() async {
@@ -152,6 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onTapSemester(int semesterNumber){
     currentSemester = semesterNumber;
+    saveCurrentSemesterNumber();
     subjectList.setCurrentSemesterNumber(currentSemester);
     updateAllData();
     Navigator.pop(context);
