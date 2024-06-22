@@ -63,7 +63,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
         darkTheme: ThemeData(
-          ///TODO modify this to make it look better
           colorScheme: const ColorScheme(
             brightness: Brightness.dark,
             primary: Colors.green,

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -152,18 +153,22 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> semesters = [];
     for(int i=1; i<=semesterCount; i++){
       semesters.add(
-        ListTile(
-          title: Text('$i. félév',
-          style: TextStyle(
-              color: i == currentSemester ? Colors.white : Colors.black,
-              fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
-          ),),
-          onTap: () {
-            onTapSemester(i);
-          },
-          tileColor: i == currentSemester ? Colors.green : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text('$i. félév',
+            style: TextStyle(
+                fontSize: 17,
+                color: i == currentSemester ? Colors.white : Colors.orange,
+                fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
+            ),),
+            onTap: () {
+              onTapSemester(i);
+            },
+            tileColor: i == currentSemester ? Colors.green : const CardTheme().color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15)
+            ),
           ),
         )
       );
@@ -221,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Theme(
               data: Theme.of(context).copyWith(dividerTheme: const DividerThemeData(color: Colors.transparent)),
               child: UserAccountsDrawerHeader(
-                accountName: const Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold),),
+                accountName: const Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
                 accountEmail: const Text('Developed by: balazs003'),
                 currentAccountPicture: const Icon(Icons.account_circle_rounded, color: Colors.white, size: 70,),
                 decoration: BoxDecoration(
