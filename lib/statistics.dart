@@ -91,7 +91,7 @@ class Statistics {
       sum += subject.grade;
     }
 
-    average = _subjectList.size() == 0 ? 0.0 : sum / _subjectList.size();
+    average = _subjectList.filteredSubjects.isEmpty ? 0.0 : sum / _subjectList.filteredSubjects.length;
   }
 
   void calculateAllData(){

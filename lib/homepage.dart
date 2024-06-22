@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     subjectList = Provider.of<SubjectList>(context, listen: false);
+    //IMPORTANT: setting current semester value for subjectlist is done in loadAllData() meththod
     statistics = Statistics(newSubjectList: subjectList, newContext: context);
 
     indexPanel = ResultPanel(
@@ -78,8 +79,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
     });
-
-    //important on init and when changing semester in hamburger menu
   }
 
   Future<void> loadAllSavedData() async {
@@ -408,7 +407,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     bool isCreditValid = true;
-    bool isNameUnique = true;
     bool isNameEmpty = false;
 
     return showDialog(
@@ -424,17 +422,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    enabled: subject == null,
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Név',
                       errorText: isNameEmpty
                           ? 'A név nem lehet üres!'
-                          : (isNameUnique ? null : 'A név már létezik!'),
+                          : null,
                     ),
                     onChanged: (value) {
                       setState(() {
-                        isNameUnique = nameIsUnique(value, subject != null);
                         isNameEmpty = value.isEmpty;
                       });
                     },
@@ -464,14 +460,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Text('Mégse'),
                 ),
                 TextButton(
-                  onPressed: isNameEmpty || !isNameUnique || !isCreditValid
+                  onPressed: isNameEmpty || !isCreditValid
                       ? null
                       : () {
                           setState(() {
                             isCreditValid =
                                 creditValidation(weightController.text);
-                            isNameUnique = nameIsUnique(
-                                nameController.text, subject != null);
                             isNameEmpty = nameController.text.isEmpty;
                           });
 
@@ -481,24 +475,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           int grade = 5;
                           bool sure = true;
                           int seqnum = subjectList.size();
+                          int id = -1;
 
                           //values depend on what you modify in the dialog
                           if (subject != null) {
-                            name = name == subject.name
-                                ? subject.name
-                                : nameController.text.trim();
-                            weight = weight == subject.weight
-                                ? subject.weight
-                                : int.tryParse(weightController.text) ?? 200;
+                            id = subject.id;
+                            name = nameController.text.trim();
+                            weight = int.tryParse(weightController.text) ?? 200;
                             grade = subject.grade;
                             sure = subject.sure;
                             seqnum = subject.seqnum;
                           }
 
-                          if (!isNameEmpty && isNameUnique && isCreditValid) {
+                          if (!isNameEmpty && isCreditValid) {
                             //Necessary to create new subject here and also to set seqnum, although it could be handled by subjectlist class, but this way it's consistent
                             Subject newSubject = Subject(
-                                newId: -1,
+                                newId: id,
                                 newName: name,
                                 newWeight: weight,
                                 newGrade: grade,
@@ -609,16 +601,5 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-  }
-
-  bool nameIsUnique(String name, bool modifyingSubject) {
-    if (modifyingSubject) return true;
-    name = name.trim().toLowerCase();
-    for (var subject in subjectList.subjects) {
-      if (subject.name.toLowerCase() == name) {
-        return false;
-      }
-    }
-    return true;
   }
 }
