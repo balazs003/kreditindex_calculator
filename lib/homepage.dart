@@ -53,13 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
         initialValue: statistics.creditIndex,
         panelColor: Colors.blueAccent,
         key: indexPanelKey);
-    summarizedIndexPanel = ClickableResultPanel(
+    summarizedIndexPanel = ResultPanel(
       name: 'Kreditindex a korábbi félévvel együtt',
       initialValue: statistics.summarizedCreditIndex,
       panelColor: Colors.deepPurpleAccent,
-      key: summarizedIndexPanelKey,
-      onTap: () => _showSetEarlierCreditIndex(context),
-    );
+      key: summarizedIndexPanelKey);
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
         initialValue: statistics.weightedCreditIndex,
@@ -84,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadAllSavedData() async {
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
-    await statistics.loadEarlierCreditIndex();
 
     //setting the data to show currently
     setState(() {
@@ -124,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void updateAllData() {
-    statistics.calculateAllData();
+    statistics.calculateAllData(currentSemester);
     setPanelData();
   }
 
@@ -528,78 +525,5 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showEditSubjectDialog(
       BuildContext context, Subject oldSubject) async {
     return _showSubjectDialog(context, subject: oldSubject);
-  }
-
-  void _showSetEarlierCreditIndex(BuildContext context) async {
-    TextEditingController earlierCreditController =
-        TextEditingController(text: statistics.earlierCreditIndex.toString());
-    bool hasError = false;
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, setState) {
-            return AlertDialog(
-              title: const Text("Előző félévben a kreditindexed:"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                      controller: earlierCreditController,
-                      decoration: InputDecoration(
-                        labelText: 'Korábbi kreditindex',
-                        errorText: hasError ? 'Helytelen érték!' : null,
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        RegExp validInput = RegExp(r'^\d\.\d+$');
-                        if (validInput.hasMatch(earlierCreditController.text)) {
-                          setState(() {
-                            hasError = false;
-                          });
-                        } else {
-                          setState(() {
-                            hasError = true;
-                          });
-                        }
-                      }),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Mégse'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (hasError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Ponttal elválasztott tizedes törtet írj be (pl.: 4.52)'),
-                        ),
-                      );
-                    } else {
-                      double value = double.tryParse(earlierCreditController.text) ?? 0.0;
-                      statistics.saveEarlierCreditIndex(value);
-                      setState(() {
-                        updateAllData();
-                      });
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text(
-                    'Mentés',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 }
