@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
@@ -18,6 +19,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   late int currentSemester = 1;
+  int semesterCount = 11;
   String currentSemesterNumberKey = 'currentSemesterNumber';
 
   late SubjectList subjectList;
@@ -151,10 +153,18 @@ class _MyHomePageState extends State<MyHomePage> {
     for(int i=1; i<=semesterCount; i++){
       semesters.add(
         ListTile(
-          title: Text('$i. félév'),
+          title: Text('$i. félév',
+          style: TextStyle(
+              color: i == currentSemester ? Colors.white : Colors.black,
+              fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
+          ),),
           onTap: () {
             onTapSemester(i);
           },
+          tileColor: i == currentSemester ? Colors.green : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)
+          ),
         )
       );
     }
@@ -205,10 +215,22 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.all(10),
           children: [
-            const DrawerHeader(child: Text('ÁtlagoSCH')),
-            ...buildSemesterList(11)
+            //wrapped int Theme widget to make divider line transparent
+            Theme(
+              data: Theme.of(context).copyWith(dividerTheme: const DividerThemeData(color: Colors.transparent)),
+              child: UserAccountsDrawerHeader(
+                accountName: const Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold),),
+                accountEmail: const Text('Developed by: balazs003'),
+                currentAccountPicture: const Icon(Icons.account_circle_rounded, color: Colors.white, size: 70,),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.green
+                ),
+              ),
+            ),
+            ...buildSemesterList(semesterCount)
           ],
         ),
       ),
