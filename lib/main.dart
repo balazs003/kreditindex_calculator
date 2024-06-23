@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/all_data_page.dart';
 import 'package:kreditindex_calculator/credit_division_notifier.dart';
@@ -38,61 +39,76 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CreditDivisionNotifier()),
         ChangeNotifierProvider(create: (context) => SubjectList())
       ],
-      child: MaterialApp(
-        title: 'ÁtlagoSCH 2.0',
-        theme: ThemeData(
-          colorScheme: const ColorScheme(
+      child: AdaptiveTheme(
+        light: ThemeData(
+            useMaterial3: true,
             brightness: Brightness.light,
-            primary: Colors.green,
-            onPrimary: Colors.white,
-            secondary: Colors.greenAccent,
-            onSecondary: Colors.black,
-            error: Colors.red,
-            onError: Colors.white,
-            background: Colors.white,
-            onBackground: Colors.black,
-            surface: Colors.white,
-            onSurface: Colors.black,
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.green,
-          ),
-          buttonTheme: const ButtonThemeData(
-            buttonColor: Colors.green,
-            textTheme: ButtonTextTheme.primary,
-          ),
+          colorSchemeSeed: Colors.green,
         ),
-        darkTheme: ThemeData(
-          colorScheme: const ColorScheme(
-            brightness: Brightness.dark,
-            primary: Colors.green,
-            onPrimary: Color(0xFF222222),
-            secondary: Colors.greenAccent,
-            onSecondary: Colors.black,
-            error: Colors.red,
-            onError: Colors.black,
-            background: Color(0xFF222222),
-            onBackground: Colors.black,
-            surface: Color(0xFF333333),
-            onSurface: Colors.white,
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.green,
-          ),
-          buttonTheme: const ButtonThemeData(
-            buttonColor: Colors.green,
-            textTheme: ButtonTextTheme.primary,
-          ),
+        dark: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorSchemeSeed: Colors.green,
         ),
-        themeMode: ThemeMode.system,
-        home: const MyHomePage(title: 'Kezdőlap'),
-        routes: {
-          '/alldata': (context) => const AllDataPage(),
-          '/settings': (context) => const SettingsPage(),
-          '/info': (context) => const InfoPage(),
-        },
+        initial: AdaptiveThemeMode.light,
+        builder: (theme, darkTheme) => MaterialApp(
+          title: 'ÁtlagoSCH 2.0',
+          theme: theme,
+          darkTheme: darkTheme,
+          /*theme: ThemeData(
+            colorScheme: const ColorScheme(
+              brightness: Brightness.light,
+              primary: Colors.green,
+              onPrimary: Colors.white,
+              secondary: Colors.greenAccent,
+              onSecondary: Colors.black,
+              error: Colors.red,
+              onError: Colors.white,
+              background: Colors.white,
+              onBackground: Colors.black,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.green,
+            ),
+            buttonTheme: const ButtonThemeData(
+              buttonColor: Colors.green,
+              textTheme: ButtonTextTheme.primary,
+            ),
+          ),
+          darkTheme: ThemeData(
+            colorScheme: const ColorScheme(
+              brightness: Brightness.dark,
+              primary: Colors.green,
+              onPrimary: Color(0xFF222222),
+              secondary: Colors.greenAccent,
+              onSecondary: Colors.black,
+              error: Colors.red,
+              onError: Colors.black,
+              background: Color(0xFF222222),
+              onBackground: Colors.black,
+              surface: Color(0xFF333333),
+              onSurface: Colors.white,
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.green,
+            ),
+            buttonTheme: const ButtonThemeData(
+              buttonColor: Colors.green,
+              textTheme: ButtonTextTheme.primary,
+            ),
+          ),
+          themeMode: ThemeMode.system,*/
+          home: const MyHomePage(title: 'Kezdőlap'),
+          routes: {
+            '/alldata': (context) => const AllDataPage(),
+            '/settings': (context) => const SettingsPage(),
+            '/info': (context) => const InfoPage(),
+          },
+        ),
       ),
     );
   }

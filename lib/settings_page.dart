@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kreditindex_calculator/subject.dart';
@@ -5,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'credit_division_notifier.dart';
+
+enum ThemeItem { light, dark, system }
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -17,6 +20,8 @@ class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _controller;
   int _creditDivisionNumber = 0;
   late SubjectList subjectList;
+
+  ThemeItem? selectedItem;
 
   //Switch states for result cards
   bool _showCreditIndexCard = true;
@@ -41,15 +46,19 @@ class _SettingsPageState extends State<SettingsPage> {
     //loading divider value
     _creditDivisionNumber = prefs.getInt('creditDivisionNumber') ?? 0;
 
-    if(mounted){
-      context.read<CreditDivisionNotifier>().setCreditDivisionNumber(_creditDivisionNumber);
+    if (mounted) {
+      context
+          .read<CreditDivisionNotifier>()
+          .setCreditDivisionNumber(_creditDivisionNumber);
     }
     _controller.text = _creditDivisionNumber.toString();
 
     //loading switch states
     _showCreditIndexCard = prefs.getBool('creditIndexVisible') ?? true;
-    _showSummarizedCreditIndexCard = prefs.getBool('summarizedCreditIndexVisible') ?? true;
-    _showWeightedCreditIndexCard = prefs.getBool('weightedCreditIndexVisible') ?? true;
+    _showSummarizedCreditIndexCard =
+        prefs.getBool('summarizedCreditIndexVisible') ?? true;
+    _showWeightedCreditIndexCard =
+        prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
   }
 
@@ -64,14 +73,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
     await prefs.setInt('creditDivisionNumber', value);
 
-    if(mounted){
+    if (mounted) {
       context.read<CreditDivisionNotifier>().setCreditDivisionNumber(value);
     }
 
     //saving switch preferences
     await prefs.setBool('creditIndexVisible', _showCreditIndexCard);
-    await prefs.setBool('summarizedCreditIndexVisible', _showSummarizedCreditIndexCard);
-    await prefs.setBool('weightedCreditIndexVisible', _showWeightedCreditIndexCard);
+    await prefs.setBool(
+        'summarizedCreditIndexVisible', _showSummarizedCreditIndexCard);
+    await prefs.setBool(
+        'weightedCreditIndexVisible', _showWeightedCreditIndexCard);
     await prefs.setBool('averageVisible', _showAverageCard);
   }
 
@@ -111,7 +122,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       TextField(
                         controller: _controller,
                         decoration: InputDecoration(
-                          errorText: _creditDivisionNumber <= 0 ? '0-nál nagyobb érték kell' : null,
+                          errorText: _creditDivisionNumber <= 0
+                              ? '0-nál nagyobb érték kell'
+                              : null,
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: <TextInputFormatter>[
@@ -123,7 +136,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (value.isNotEmpty) {
                               int parsedValue = int.tryParse(value) ?? 0;
                               _creditDivisionNumber = parsedValue;
-                              context.read<CreditDivisionNotifier>().setCreditDivisionNumber(_creditDivisionNumber);
+                              context
+                                  .read<CreditDivisionNotifier>()
+                                  .setCreditDivisionNumber(
+                                      _creditDivisionNumber);
                             }
                           });
                         },
@@ -132,7 +148,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               Card(
                 elevation: 3,
                 child: Padding(
@@ -145,7 +163,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 18),
                       ),
                       SwitchListTile(
-                        title: const Text('Kreditindex az előző félévvel együtt'),
+                        title:
+                            const Text('Kreditindex az előző félévvel együtt'),
                         value: _showSummarizedCreditIndexCard,
                         onChanged: (value) {
                           setState(() {
@@ -188,7 +207,63 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Téma kiválasztása',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      PopupMenuButton<ThemeItem>(
+                        elevation: 3,
+                        initialValue: selectedItem,
+                        onSelected: (ThemeItem item) {
+                          setState(() {
+                            selectedItem = item;
+                            switch(selectedItem){
+                              case ThemeItem.light:
+                                AdaptiveTheme.of(context).setLight();
+                              case ThemeItem.dark:
+                                AdaptiveTheme.of(context).setDark();
+                              case ThemeItem.system:
+                                AdaptiveTheme.of(context).setSystem();
+                              case null:
+                                AdaptiveTheme.of(context).setLight();
+                            }
+                          });
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<ThemeItem>>[
+                          const PopupMenuItem<ThemeItem>(
+                            value: ThemeItem.light,
+                            child: Text('Világos'),
+                          ),
+                          const PopupMenuItem<ThemeItem>(
+                            value: ThemeItem.dark,
+                            child: Text('Sötét'),
+                          ),
+                          const PopupMenuItem<ThemeItem>(
+                            value: ThemeItem.system,
+                            child: Text('Rendszer'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               Card(
                 elevation: 3,
                 child: Padding(
@@ -204,16 +279,17 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       ElevatedButton(
                           //this button is only enabled when the subject list is not empty
-                          onPressed: subjectList.subjects.isNotEmpty ? () {
-                            _showDeleteAllSubjectsDialog(context);
-                          } : null,
+                          onPressed: subjectList.subjects.isNotEmpty
+                              ? () {
+                                  _showDeleteAllSubjectsDialog(context);
+                                }
+                              : null,
                           child: const Text(
                             'TÖRLÉS',
                             style: TextStyle(
                               color: Colors.red,
                             ),
-                          )
-                      )
+                          ))
                     ],
                   ),
                 ),
@@ -241,21 +317,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: const Text(
                     'Igen',
-                    style: TextStyle(
-                      color: Colors.red
-                    ),
-                  )
-              ),
+                    style: TextStyle(color: Colors.red),
+                  )),
               TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Mégse')
-              )
+                  child: const Text('Mégse'))
             ],
           );
-        }
-    );
+        });
   }
-
 }

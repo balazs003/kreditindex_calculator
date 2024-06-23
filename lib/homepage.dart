@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Color getSubjectColor(bool sure) {
-    return sure ? Colors.green : Colors.orangeAccent;
+    return sure ? Theme.of(context).colorScheme.primary : Colors.orangeAccent;
   }
 
   IconData getSubjectIcon(bool sure) {
@@ -155,16 +155,16 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('$i. félév',
             style: TextStyle(
                 fontSize: 17,
-                color: i == currentSemester ? Colors.white : const TextStyle().color,
+                color: i == currentSemester ? Theme.of(context).primaryColorDark : const TextStyle().color,
                 fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
             ),),
             onTap: () {
               onTapSemester(i);
             },
-            tileColor: i == currentSemester ? Colors.green : const CardTheme().color,
+            tileColor: i == currentSemester ? Theme.of(context).colorScheme.inversePrimary : const CardTheme().color,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
-              side: i == currentSemester ? const BorderSide(color: Colors.green, width: 2) : const BorderSide(color: Colors.green, width: 2)
+              side: i == currentSemester ? BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 2) : BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 2)
             ),
           ),
         )
@@ -230,24 +230,18 @@ class _MyHomePageState extends State<MyHomePage> {
             Theme(
               data: Theme.of(context).copyWith(dividerTheme: const DividerThemeData(color: Colors.transparent)),
               child: UserAccountsDrawerHeader(
-                accountName: const Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-                accountEmail: const Text('Fejlesztette: balazs003'),
-                currentAccountPicture: const Icon(Icons.account_circle_rounded, color: Colors.white, size: 70,),
+                accountName: Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).primaryColorLight),),
+                accountEmail: Text('Fejlesztette: balazs003', style: TextStyle(color: Theme.of(context).primaryColorLight),),
+                currentAccountPicture: Icon(Icons.account_circle_rounded, color: Theme.of(context).primaryColorLight, size: 70,),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
-                    end: Alignment(0.8, 1),
+                    end: Alignment.bottomRight,
                     colors: <Color>[
-                      Colors.green,
-                      Color(0xff64c200),
-                      Color(0xff8cb900),
-                      Color(0xffabae00),
-                      Color(0xffc6a100),
-                      Color(0xffdd9300),
-                      Color(0xfff08400),
-                      Color(0xffff7411),
-                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColorDark,
+                    ],
                     tileMode: TileMode.mirror,
                   ),
                 ),
