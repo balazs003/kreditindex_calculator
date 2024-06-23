@@ -76,6 +76,11 @@ class _AllDataPageState extends State<AllDataPage> {
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 10),
+                      Text(
+                        "Bukások száma: ${statistics.getFailedSubjectCount()}",
+                        style: const TextStyle(fontSize: 18, color: Colors.redAccent),
+                      ),
+                      const SizedBox(height: 10),
 
                       indexPanel,
                       const SizedBox(height: 10),

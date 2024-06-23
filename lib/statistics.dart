@@ -48,4 +48,6 @@ abstract class Statistics {
     calculateWeightedCreditIndex();
     calculateFinalCreditCount();
   }
+
+  getFailedSubjectCount() {}
 }

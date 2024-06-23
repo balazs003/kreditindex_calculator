@@ -45,6 +45,20 @@ class InfoPage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               Text(
+                'Összesített adatok megtekintése',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'Lehetőségünk van megtekinteni az egész egyetemi pályafutásunk alatt szerzett eredményeinket összesítve. Ehhez kattintsunk az oldal tetején a fogaskeréktől balra található kis sávokat tartalmazó ikonra.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text(
                 'Kreditek száma',
                 style: TextStyle(
                     fontSize: 20,
@@ -192,7 +206,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '2.0.0.0',
+                '2.0.1.0',
                 style: TextStyle(
                   fontSize: 17,
                 ),

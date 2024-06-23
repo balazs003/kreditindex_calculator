@@ -68,4 +68,15 @@ class AllDataStatistics extends Statistics {
 
     average = subjectList.subjects.isEmpty ? 0.0 : sum / subjectList.size();
   }
+
+  @override
+  int getFailedSubjectCount(){
+    int failedSubjectCounter = 0;
+    for(var subject in subjectList.subjects){
+      if(subject.grade < 2){
+        failedSubjectCounter++;
+      }
+    }
+    return failedSubjectCounter;
+  }
 }
