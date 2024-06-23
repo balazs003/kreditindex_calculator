@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => SubjectList())
       ],
       child: MaterialApp(
-        title: 'ÁtlagoSCH',
+        title: 'ÁtlagoSCH 2.0',
         theme: ThemeData(
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
@@ -66,14 +66,14 @@ class MyApp extends StatelessWidget {
           colorScheme: const ColorScheme(
             brightness: Brightness.dark,
             primary: Colors.green,
-            onPrimary: Colors.black,
+            onPrimary: Color(0xFF222222),
             secondary: Colors.greenAccent,
             onSecondary: Colors.black,
             error: Colors.red,
             onError: Colors.black,
-            background: Colors.black,
-            onBackground: Colors.white,
-            surface: Colors.black,
+            background: Color(0xFF222222),
+            onBackground: Colors.black,
+            surface: Color(0xFF333333),
             onSurface: Colors.white,
           ),
           appBarTheme: const AppBarTheme(
@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
         home: const MyHomePage(title: 'Kezdőlap'),
         routes: {
           '/settings': (context) => const SettingsPage(),
-          '/info': (context) => InfoPage(),
+          '/info': (context) => const InfoPage(),
         },
       ),
     );

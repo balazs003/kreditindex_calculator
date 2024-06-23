@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -121,10 +119,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       updateAllData();
     });
-    print('BETOLTVE');
-    for(var subject in subjectList.subjects){
-      print('${subject.name} ${subject.id}${subject.semester}');
-    }
   }
 
   Color getSubjectColor(bool sure) {
@@ -159,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('$i. félév',
             style: TextStyle(
                 fontSize: 17,
-                color: i == currentSemester ? Colors.white : Colors.orange,
+                color: i == currentSemester ? Colors.white : const TextStyle().color,
                 fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
             ),),
             onTap: () {
@@ -167,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             tileColor: i == currentSemester ? Colors.green : const CardTheme().color,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15)
+              borderRadius: BorderRadius.circular(15),
+              side: i == currentSemester ? const BorderSide(color: Colors.green, width: 2) : const BorderSide(color: Colors.green, width: 2)
             ),
           ),
         )
@@ -220,18 +215,32 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       drawer: Drawer(
         child: ListView(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 40),
           children: [
             //wrapped int Theme widget to make divider line transparent
             Theme(
               data: Theme.of(context).copyWith(dividerTheme: const DividerThemeData(color: Colors.transparent)),
               child: UserAccountsDrawerHeader(
                 accountName: const Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-                accountEmail: const Text('Developed by: balazs003'),
+                accountEmail: const Text('Fejlesztette: balazs003'),
                 currentAccountPicture: const Icon(Icons.account_circle_rounded, color: Colors.white, size: 70,),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  color: Colors.green
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment(0.8, 1),
+                    colors: <Color>[
+                      Colors.green,
+                      Color(0xff64c200),
+                      Color(0xff8cb900),
+                      Color(0xffabae00),
+                      Color(0xffc6a100),
+                      Color(0xffdd9300),
+                      Color(0xfff08400),
+                      Color(0xffff7411),
+                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
+                    tileMode: TileMode.mirror,
+                  ),
                 ),
               ),
             ),

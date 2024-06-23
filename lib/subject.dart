@@ -135,10 +135,6 @@ class SubjectList extends ChangeNotifier {
       currentSubject.updateInDatabase();
     }
 
-    print('SORREND');
-    for(var subject in subjects){
-    print('${subject.name} ${subject.id}${subject.semester}${subject.seqnum}');
-    }
     notifyListeners();
   }
 

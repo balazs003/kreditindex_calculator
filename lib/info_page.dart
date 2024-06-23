@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class InfoPage extends StatelessWidget {
+  const InfoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +29,20 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Divider(color: Colors.green,),
+              SizedBox(height: 20,),
+              Text(
+                'Megjelenítendő félév kiválasztása',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+                'A bal felső sarokban lévő gombra kattintva megjelenik egy menü, ahonnan kiválaszthatjuk, hogy melyik félévünknek az adatait akarjuk látni a kezdőlapon. A lista görgethető.',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
               SizedBox(height: 20,),
               Text(
                 'Kreditek száma',
@@ -64,7 +80,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez az információ a BME VIK-re járó kollégistáknak lehet releváns. Ez a kártya abban különbözik a többitől, hogy kattintható, ekkor megjelenik egy párbeszédablak, amiben beállíthatjuk a korábbi félévben megszerzett kreditindexünket. A Mentés gombra kattintva a program megjegyzi ezt az értéket, de bármikor módosíthatjuk a kártyára kattintva.',
+                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez az információ a BME VIK-re járó kollégistáknak lehet releváns.',
                 style: TextStyle(
                   fontSize: 17,
                 ),
@@ -176,7 +192,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '1.2.1.1',
+                '2.0.0.0',
                 style: TextStyle(
                   fontSize: 17,
                 ),
