@@ -6,9 +6,18 @@ import 'credit_division_notifier.dart';
 class AllDataStatistics extends Statistics {
   AllDataStatistics({required super.newSubjectList, required super.newContext});
 
+  int _getFilledSemesterCount() {
+    Set<int> semesterSet = {};
+    for(var subject in subjectList.subjects){
+      semesterSet.add(subject.semester);
+    }
+
+    return semesterSet.length;
+  }
+
   @override
   void setCreditDivisionNumber() {
-    creditDivisionNumber = context.read<CreditDivisionNotifier>().creditDivisionNumber * subjectList.size();
+    creditDivisionNumber = context.read<CreditDivisionNotifier>().creditDivisionNumber * _getFilledSemesterCount();
   }
 
   @override
