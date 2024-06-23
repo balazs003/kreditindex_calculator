@@ -190,6 +190,13 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             onPressed: () {
+              Navigator.pushNamed(context, '/alldata');
+            },
+            icon: const Icon(Icons.poll),
+            tooltip: 'Összesített adatok',
+          ),
+          IconButton(
+            onPressed: () {
               Navigator.pushNamed(context, '/settings').then((_) async {
                 await loadAllSavedData().then((_) {
                   //Delay is needed for all data to be loaded so the content of the cards can be shown

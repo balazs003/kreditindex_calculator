@@ -48,7 +48,7 @@ class Statistics {
   void _calculateEarlierCreditIndex(int currentSemester){
     if(currentSemester <= 1){
       //after the first semester, the current creditindex is taken multiplied by two
-      earlierCreditIndex = creditIndex * 3.0;
+      earlierCreditIndex = creditIndex * 2.0;
     } else {
       //almost same code as when we calculate creditindex
       int sum = 0;
