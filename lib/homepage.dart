@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:kreditindex_calculator/result_panel.dart';
 
+import 'filtered_statistics.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -48,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     subjectList = Provider.of<SubjectList>(context, listen: false);
     //IMPORTANT: setting current semester value for subjectlist is done in loadAllData() meththod
-    statistics = Statistics(newSubjectList: subjectList, newContext: context);
+    statistics = FilteredStatistics(newSubjectList: subjectList, newContext: context);
 
     indexPanel = ResultPanel(
         name: 'Kreditindex',

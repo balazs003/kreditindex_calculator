@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/subject.dart';
-import 'package:provider/provider.dart';
-import 'credit_division_notifier.dart';
 
 //Class responsible for providing statistical data about subjects
-class Statistics {
-  late SubjectList _subjectList;
-  late BuildContext _context;
+abstract class Statistics {
+  late SubjectList subjectList;
+  late BuildContext context;
 
   double earlierCreditIndex = 0.0;
 
@@ -21,90 +19,33 @@ class Statistics {
   double average = 0.0;
 
   Statistics({required SubjectList newSubjectList, required BuildContext newContext}){
-    _subjectList = newSubjectList;
-    _context = newContext;
+    subjectList = newSubjectList;
+    context = newContext;
   }
 
-  void _setCreditDivisionNumber() {
-    creditDivisionNumber = _context.read<CreditDivisionNotifier>().creditDivisionNumber;
-  }
+  void setCreditDivisionNumber();
 
-  void _calculateTotalWeight() {
-    creditCount = 0;
-    for (var subject in _subjectList.filteredSubjects) {
-      creditCount += subject.weight;
-    }
-  }
+  void calculateTotalWeight();
 
-  void _calculateFinalCreditCount() {
-    finalCreditCount = creditCount;
-    for (var subject in _subjectList.filteredSubjects) {
-      if (subject.grade < 2) {
-        finalCreditCount -= subject.weight;
-      }
-    }
-  }
+  void calculateFinalCreditCount();
 
-  void _calculateEarlierCreditIndex(int currentSemester){
-    if(currentSemester <= 1){
-      //after the first semester, the current creditindex is taken multiplied by two
-      earlierCreditIndex = creditIndex * 2.0;
-    } else {
-      //almost same code as when we calculate creditindex
-      int sum = 0;
-      int previousSemester = currentSemester - 1;
-      for (var subject in _subjectList.subjects) {
-        if (subject.semester == previousSemester && subject.grade > 1) {
-          sum += subject.weight * subject.grade;
-        }
-      }
-      earlierCreditIndex = sum / creditDivisionNumber.toDouble();
-    }
-  }
+  void calculateEarlierCreditIndex(int currentSemester);
 
-  void _calculateCreditIndex() {
-    int sum = 0;
-    for (var subject in _subjectList.filteredSubjects) {
-      if (subject.grade > 1) {
-        sum += subject.weight * subject.grade;
-      }
-    }
+  void calculateCreditIndex();
 
-    creditIndex = sum / creditDivisionNumber.toDouble();
-  }
+  void calculateWeightedCreditIndex();
 
-  void _calculateWeightedCreditIndex() {
-    int sum = 0;
-    for (var subject in _subjectList.filteredSubjects) {
-      if (subject.grade > 1) {
-        sum += subject.weight * subject.grade;
-      }
-    }
+  void calculateSummarizedCreditIndex(int currentSemester);
 
-    weightedCreditIndex = creditCount == 0 ? 0.0 : sum / creditCount.toDouble();
-  }
-
-  void _calculateSummarizedCreditIndex(int currentSemester) {
-    _calculateEarlierCreditIndex(currentSemester);
-    summarizedCreditIndex = (creditIndex + earlierCreditIndex) / 2.0;
-  }
-
-  void _calculateAverage() {
-    int sum = 0;
-    for (var subject in _subjectList.filteredSubjects) {
-      sum += subject.grade;
-    }
-
-    average = _subjectList.filteredSubjects.isEmpty ? 0.0 : sum / _subjectList.filteredSubjects.length;
-  }
+  void calculateAverage();
 
   void calculateAllData(int currentSemester){
-    _setCreditDivisionNumber();
-    _calculateTotalWeight();
-    _calculateCreditIndex();
-    _calculateSummarizedCreditIndex(currentSemester);
-    _calculateAverage();
-    _calculateWeightedCreditIndex();
-    _calculateFinalCreditCount();
+    setCreditDivisionNumber();
+    calculateTotalWeight();
+    calculateCreditIndex();
+    calculateSummarizedCreditIndex(currentSemester);
+    calculateAverage();
+    calculateWeightedCreditIndex();
+    calculateFinalCreditCount();
   }
 }

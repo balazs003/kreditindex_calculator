@@ -4,6 +4,8 @@ import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:kreditindex_calculator/result_panel.dart';
 
+import 'alldata_statistics.dart';
+
 class AllDataPage extends StatefulWidget {
   const AllDataPage({super.key});
 
@@ -21,33 +23,28 @@ class _AllDataPageState extends State<AllDataPage> {
   late ResultPanel averagePanel;
   late ResultPanel weightedPanel;
 
-  //Keys to delegate state changing for resultpanel cards
-  final GlobalKey<ResultPanelState> indexPanelKey = GlobalKey();
-  final GlobalKey<ResultPanelState> averagePanelKey = GlobalKey();
-  final GlobalKey<ResultPanelState> weightedPanelKey = GlobalKey();
-
   @override
   void initState() {
     super.initState();
 
     subjectList = Provider.of<SubjectList>(context, listen: false);
-    statistics = Statistics(newSubjectList: subjectList, newContext: context);
+    statistics = AllDataStatistics(newSubjectList: subjectList, newContext: context);
+
+    //method parameter doesn't matter here
+    statistics.calculateAllData(0);
 
     indexPanel = ResultPanel(
-        name: 'Kreditindex',
+        name: 'Összesített kreditindex',
         initialValue: statistics.creditIndex,
-        panelColor: Colors.blueAccent,
-        key: indexPanelKey);
+        panelColor: Colors.blueAccent);
     weightedPanel = ResultPanel(
-        name: 'Súlyozott kreditindex',
+        name: 'Összesített súlyozott kreditindex',
         initialValue: statistics.weightedCreditIndex,
-        panelColor: Colors.deepOrangeAccent,
-        key: weightedPanelKey);
+        panelColor: Colors.deepOrangeAccent);
     averagePanel = ResultPanel(
-        name: 'Átlag',
+        name: 'Összesített átlag',
         initialValue: statistics.average,
-        panelColor: Colors.redAccent,
-        key: averagePanelKey);
+        panelColor: Colors.redAccent);
   }
 
   @override
@@ -70,12 +67,12 @@ class _AllDataPageState extends State<AllDataPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Összes felvett kredit száma: ${5}",
+                        "Összes felvett kredit száma: ${statistics.creditCount}",
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "Összes teljesített kredit száma: ${6}",
+                        "Összes teljesített kredit száma: ${statistics.finalCreditCount}",
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 10),
