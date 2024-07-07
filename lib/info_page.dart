@@ -115,6 +115,22 @@ class InfoPage extends StatelessWidget {
                 height: 20,
               ),
               headerText(
+                  'Új félévek hozzáadása', Theme.of(context).colorScheme.primary),
+              descriptionText(
+                'Ha nem lenne elegendő félév alapból a program listájában, a félévek listéjénak alján található gombbal hozzá tudunk adni újabb féléveket a programhoz.',
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              headerText(
+                  'Hozzáadott félévek törlése', Theme.of(context).colorScheme.primary),
+              descriptionText(
+                'A beállításokból lehetőségünk van az általunk újonnan hozzáadott féléveket és az azokhoz felvett tárgyak adatait törölni. Ezzel a gombbal tehát a féléveket is töröljük a listából és a hozzájuk felvett tárgyakat is.',
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              headerText(
                   'Tárgy(ak) törlése', Theme.of(context).colorScheme.primary),
               descriptionText(
                 'Ha egy tárgyat törölni szeretnénk, akkor húzzuk balra a kártyáját, majd a piros mezőre nyomva megjelenik egy ablak, ahol megerősíthetjük a törlést. Ha sok tárgyat szeretnénk törölni, ezek együttes törlését elvégezhetjük a beállítások menüből.',
