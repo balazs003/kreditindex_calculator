@@ -116,6 +116,14 @@ class InfoPage extends StatelessWidget {
                 height: 20,
               ),
               headerText(
+                  'Tanterv betöltése', Theme.of(context).colorScheme.primary),
+              descriptionText(
+                'A beállításokból lehetőségünk van egy adott tanterv tantárgyait betölteni, így nem nekünk kell az egészet beírni. Persze a betöltés után is szabadon módosíthatjuk a tárgyakat. A tantervek megtekintése gombra kattintva előjön egy lista a betölthető tantervekről. Válasszuk ki a kívánt tantervet, majd nyomjunk a Betöltés gombra. Vigyázat! Az új tanterv betöltésével törlődik az összes korábbi tárgyunk! (Ezért nem elég a listában rábökni egyre, meg is kell erősíteni.)',
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              headerText(
                   'Új félévek hozzáadása', Theme.of(context).colorScheme.primary),
               descriptionText(
                 'Ha nem lenne elegendő félév alapból a program listájában, a félévek listéjénak alján található gombbal hozzá tudunk adni újabb féléveket a programhoz.',
@@ -157,7 +165,7 @@ class InfoPage extends StatelessWidget {
               headerText(
                   'Alkalmazás verziója', Theme.of(context).colorScheme.primary),
               descriptionText(
-                '2.2.0.0',
+                '2.3.0.0',
               ),
             ],
           ),
