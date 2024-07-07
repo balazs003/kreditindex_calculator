@@ -143,6 +143,17 @@ class SubjectList extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeNewSemesterSubjects(int initialSemesterCount) {
+    List<Subject> tempSubjectList = List.from(subjects);
+    for(var subject in tempSubjectList){
+      if(subject.semester > initialSemesterCount){
+        subjects.remove(subject);
+        subject.deleteFromDatabase();
+      }
+    }
+    notifyListeners();
+  }
+
   void removeAllSubjects() {
     for (var subject in subjects) {
       subject.deleteFromDatabase();

@@ -18,7 +18,13 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _controller;
+
   int _creditDivisionNumber = 0;
+  final int _initialSemesterCount = 11;
+  int _semesterCount = 11;
+  final String _semesterCountKey = 'semestercount';
+  final String _currentSemesterNumberKey = 'currentSemesterNumber';
+
   late SubjectList subjectList;
 
   ThemeItem? selectedItem;
@@ -60,6 +66,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _showWeightedCreditIndexCard =
         prefs.getBool('weightedCreditIndexVisible') ?? true;
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
+
+    await loadSemesterCount();
   }
 
   void _saveSettingsData() async {
@@ -86,11 +94,20 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setBool('averageVisible', _showAverageCard);
   }
 
-  @override
-  void dispose() {
-    _controller.removeListener(_saveSettingsData);
-    _controller.dispose();
-    super.dispose();
+  Future<void> loadSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    _semesterCount = prefs.getInt('semestercount') ?? 11;
+  }
+
+  Future<void> saveSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_semesterCountKey, _semesterCount);
+  }
+
+  //if a newly added semester was selected on the homepage and you delete it from settings, the current semester after going back will be the first
+  Future<void> saveCurrentSemesterNumberAfterNewSemesterDeletion() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_currentSemesterNumberKey, 1);
   }
 
   @override
@@ -272,6 +289,39 @@ class _SettingsPageState extends State<SettingsPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
+                        'Újonnan hozzáadott félév(ek) törlése',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      ElevatedButton(
+                        //this button is only enabled when there are newly added semesters (>11)
+                          onPressed: _semesterCount > _initialSemesterCount
+                              ? () {
+                            _showDeleteNewlyAddedSemestersDialog(context);
+                          }
+                              : null,
+                          child: const Text(
+                            'ÚJ FÉLÉVEK TÖRLÉSE',
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          ))
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
                         'Összes tantárgy törlése',
                         style: TextStyle(
                           fontSize: 18,
@@ -327,5 +377,44 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           );
         });
+  }
+
+  Future<void> _showDeleteNewlyAddedSemestersDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Törlés megerősítése'),
+            content: const Text('Biztosan törlöd az újonnan hozzáadott féléveket és az ott felvett tárgyakat?'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    setState(() {
+                      subjectList.removeNewSemesterSubjects(_initialSemesterCount);
+                      _semesterCount = _initialSemesterCount;
+                      saveSemesterCount();
+                      saveCurrentSemesterNumberAfterNewSemesterDeletion();
+                      Navigator.of(context).pop();
+                    });
+                  },
+                  child: const Text(
+                    'Igen',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Mégse'))
+            ],
+          );
+        });
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_saveSettingsData);
+    _controller.dispose();
+    super.dispose();
   }
 }
