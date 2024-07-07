@@ -1,6 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kreditindex_calculator/curricula.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'credit_division_notifier.dart';
 
 enum ThemeItem { light, dark, system }
+enum CurriculumItem {bmeVikMi}
+
+final Map<CurriculumItem, String> curriculumMap = {
+  CurriculumItem.bmeVikMi : 'BME VIK mérnökinformatikus 2022'
+};
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -27,7 +33,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   late SubjectList subjectList;
 
-  ThemeItem? selectedItem;
+  ThemeItem? selectedThemeItem;
+  CurriculumItem? selectedCurriculumItem;
 
   //Switch states for result cards
   bool _showCreditIndexCard = true;
@@ -242,11 +249,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       PopupMenuButton<ThemeItem>(
                         elevation: 3,
-                        initialValue: selectedItem,
+                        initialValue: selectedThemeItem,
                         onSelected: (ThemeItem item) {
                           setState(() {
-                            selectedItem = item;
-                            switch(selectedItem){
+                            selectedThemeItem = item;
+                            switch(selectedThemeItem){
                               case ThemeItem.light:
                                 AdaptiveTheme.of(context).setLight();
                               case ThemeItem.dark:
@@ -274,6 +281,36 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Tanterv betöltése',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            _showLoadCurriculumDialog(context);
+                          },
+                          child: Text(
+                            'Tantervek megtekintése',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ))
                     ],
                   ),
                 ),
@@ -409,6 +446,63 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           );
         });
+  }
+
+  Future<void> _showLoadCurriculumDialog(BuildContext context) async {
+    List<Subject> selectedSubjectList = [];
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return AlertDialog(
+                title: const Text('Tantervek'),
+                content: SizedBox(
+                  width: double.maxFinite,
+                  height: 200,
+                  child: ListView(
+                    children: CurriculumItem.values.map((curriculumItem) {
+                      bool isSelected = selectedCurriculumItem == curriculumItem;
+                      return ListTile(
+                        title: Text(curriculumMap[curriculumItem] ?? 'HIBA'),
+                        tileColor: isSelected ? Colors.blue.withOpacity(0.1) : null,
+                        onTap: () {
+                          setState(() {
+                            selectedCurriculumItem = curriculumItem;
+                            switch(selectedCurriculumItem) {
+                              case CurriculumItem.bmeVikMi:
+                                selectedSubjectList = Curricula.bmeVikMi2022;
+                                break;
+                              case null:
+                              //do nothing
+                                break;
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Mégse'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      subjectList.setSelectedCurriculumSubjectList(selectedSubjectList);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Betölt'),
+                  ),
+                ],
+              );
+            }
+        );
+      },
+    );
   }
 
   @override

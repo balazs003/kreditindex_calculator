@@ -165,5 +165,14 @@ class SubjectList extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSelectedCurriculumSubjectList(List<Subject> selectedSubjectList){
+    removeAllSubjects();
+
+    for(var subject in selectedSubjectList){
+      addSubject(subject);
+    }
+    notifyListeners();
+  }
+
   int size() => subjects.length;
 }

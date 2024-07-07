@@ -4,7 +4,7 @@ int seqnum = 1;
 
 class Curricula {
 
-  static List<Subject> bme_vik_mi = [
+  static List<Subject> bmeVikMi2022 = [
     Subject(
         newId: -1,
         newName: 'Analízis 1 informatikusoknak',
