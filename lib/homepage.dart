@@ -473,13 +473,15 @@ class _MyHomePageState extends State<MyHomePage> {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
 
+    bool isCreditValid = true;
+    bool isNameEmpty = false;
+    bool isOptional = false;
+
     if (subject != null) {
       nameController.text = subject.name;
       weightController.text = subject.weight.toString();
+      isOptional = subject.optional;
     }
-
-    bool isCreditValid = true;
-    bool isNameEmpty = false;
 
     return showDialog(
       context: context,
@@ -522,6 +524,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                   ),
+                  const SizedBox(height: 10,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                          value: isOptional,
+                          onChanged: (value) {
+                            setState((){
+                              isOptional = value ?? false;
+                            });
+                          }
+                      ),
+                      const Text('Szabadon választható')
+                    ],
+                  )
                 ],
               ),
               actions: [
@@ -557,6 +574,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             grade = subject.grade;
                             sure = subject.sure;
                             seqnum = subject.seqnum;
+                            //isOptional is already set
                           }
 
                           if (!isNameEmpty && isCreditValid) {
@@ -568,7 +586,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 newGrade: grade,
                                 newSure: sure,
                                 newSeqnum: seqnum,
-                                newSemester: currentSemester);
+                                newSemester: currentSemester,
+                                newOptional: isOptional);
 
                             setState(() {
                               if (subject == null) {

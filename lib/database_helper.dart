@@ -21,7 +21,7 @@ class DatabaseHelper {
       path,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE subjects(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, weight INTEGER, grade INTEGER, sure INTEGER, seqnum INTEGER, semester INTEGER)',
+          'CREATE TABLE subjects(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, weight INTEGER, grade INTEGER, sure INTEGER, seqnum INTEGER, semester INTEGER, optional INTEGER)',
         );
       },
       version: 1,
@@ -36,7 +36,7 @@ class DatabaseHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
-    //its necessary to set the currently added subject's id to the one that's been assigned to it in the t=database
+    //its necessary to set the currently added subject's id to the one that's been assigned to it in the database
     subject.id = id;
 
     print('ADATBAZISBAN');
@@ -79,6 +79,7 @@ class DatabaseHelper {
         newSure: maps[i]['sure'] == 1,
         newSeqnum: maps[i]['seqnum'],
         newSemester: maps[i]['semester'],
+        newOptional: maps[i]['optional'] == 1
       );
     });
   }

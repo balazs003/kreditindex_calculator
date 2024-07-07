@@ -9,8 +9,9 @@ class Subject {
   late bool sure;
   late int seqnum;
   late int semester;
+  late bool optional;
 
-  Subject({required int newId, required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester}) {
+  Subject({required int newId, required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester, required newOptional}) {
     id = newId;
     name = newName;
     weight = newWeight;
@@ -18,6 +19,7 @@ class Subject {
     sure = newSure;
     seqnum = newSeqnum;
     semester = newSemester;
+    optional = newOptional;
   }
 
   Map<String, dynamic> toMap() {
@@ -26,9 +28,10 @@ class Subject {
       'name': name,
       'weight': weight,
       'grade': grade,
-      'sure': sure ? 1 : 0,
+      'sure': sure ? 1 : 0, //boolean
       'seqnum': seqnum,
       'semester': semester,
+      'optional': optional ? 1 : 0, //boolean
     };
   }
 
