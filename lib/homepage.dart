@@ -22,6 +22,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late int currentSemester = 1;
   int semesterCount = 11;
   String currentSemesterNumberKey = 'currentSemesterNumber';
+  String semesterCountKey = 'semestercount';
 
   late SubjectList subjectList;
   late Statistics statistics;
@@ -85,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loadAllSavedData() async {
     await loadCurrentSemesterNumber();
+    await loadSemesterCount();
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
 
@@ -97,6 +99,16 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> saveCurrentSemesterNumber() async {
     var prefs = await SharedPreferences.getInstance();
     await prefs.setInt(currentSemesterNumberKey, currentSemester);
+  }
+
+  Future<void> saveSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(semesterCountKey, semesterCount);
+  }
+
+  Future<void> loadSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    semesterCount = prefs.getInt(semesterCountKey) ?? 11;
   }
 
   Future<void> loadCurrentSemesterNumber() async {
@@ -248,7 +260,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            ...buildSemesterList(semesterCount)
+            ...buildSemesterList(semesterCount),
+
+            TextButton(
+                onPressed: () {
+                  setState(() {
+                    ++semesterCount;
+                    saveSemesterCount();
+                  });
+                },
+                child: const Text('+ Félév hozzáadása'),
+            )
           ],
         ),
       ),
