@@ -123,7 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Color getSubjectColor(bool sure) {
+  Color getSubjectColor(int grade, bool sure) {
+    if(grade < 2) return Colors.red;
     return sure ? Theme.of(context).colorScheme.primary : Colors.orangeAccent;
   }
 
@@ -350,7 +351,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              textColor: getSubjectColor(subject.sure),
+                              textColor: getSubjectColor(subject.grade, subject.sure),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -370,7 +371,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         updateAllData();
                                       });
                                     },
-                                    activeColor: getSubjectColor(subject.sure),
+                                    activeColor: getSubjectColor(subject.grade, subject.sure),
                                   ),
                                 ],
                               ),
@@ -378,7 +379,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 icon: Icon(
                                   getSubjectIcon(subject.sure),
                                   size: 30,
-                                  color: getSubjectColor(subject.sure),
+                                  color: getSubjectColor(subject.grade, subject.sure),
                                 ),
                                 onPressed: () {
                                   setState(() {
