@@ -86,4 +86,7 @@ class FilteredStatistics extends Statistics {
 
     average = subjectList.filteredSubjects.isEmpty ? 0.0 : sum / subjectList.filteredSubjects.length;
   }
+
+  @override
+  void calculateOptionalSubjectData() {}
 }

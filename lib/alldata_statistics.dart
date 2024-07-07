@@ -88,4 +88,17 @@ class AllDataStatistics extends Statistics {
     }
     return failedSubjectCounter;
   }
+
+  @override
+  void calculateOptionalSubjectData() {
+    for(var subject in subjectList.subjects){
+      if(subject.optional){
+        optionalSubjectCount++;
+
+        if(subject.grade > 1){
+          optionalSubjectCreditCount += subject.weight;
+        }
+      }
+    }
+  }
 }

@@ -12,6 +12,8 @@ abstract class Statistics {
   int creditCount = 0;
   int finalCreditCount = 0;
   int creditDivisionNumber = 0;
+  int optionalSubjectCount = 0;
+  int optionalSubjectCreditCount = 0;
 
   double creditIndex = 0.0;
   double summarizedCreditIndex = 0.0;
@@ -39,6 +41,8 @@ abstract class Statistics {
 
   void calculateAverage();
 
+  void calculateOptionalSubjectData();
+
   void calculateAllData(int currentSemester){
     setCreditDivisionNumber();
     calculateTotalWeight();
@@ -47,6 +51,7 @@ abstract class Statistics {
     calculateAverage();
     calculateWeightedCreditIndex();
     calculateFinalCreditCount();
+    calculateOptionalSubjectData();
   }
 
   getFailedSubjectCount() {}

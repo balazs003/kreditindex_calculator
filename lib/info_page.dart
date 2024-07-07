@@ -10,6 +10,7 @@ Text headerText(String data, Color color) {
 Text descriptionText(String data) {
   return Text(
     data,
+    textAlign: TextAlign.start,
     style: const TextStyle(
       fontSize: 17,
     ),
@@ -85,7 +86,7 @@ class InfoPage extends StatelessWidget {
               headerText(
                   'Új tárgy felvétele', Theme.of(context).colorScheme.primary),
               descriptionText(
-                'A tantárgyak szöveg alatt található Új tárgy felvétele gomb megnyomása után egy párbeszédablak jelenik meg, amiben megadhatjuk a tárgy nevét és hogy hány kreditet ér (a tárgyra kapott jegyet később szerkeszthetjük). Sikeres hozzáadás esetén a Tantárgyak szekcióban a hozzáadás gomb felett jelennek meg a tárgyak kártyák formájában. Ha a gomb nem látszik, ne ijedjünk meg, az oldal tartalma görgethető.',
+                'A tantárgyak szöveg alatt található. Új tárgy felvétele gomb megnyomása után egy párbeszédablak jelenik meg, amiben megadhatjuk a tárgy nevét, hogy hány kreditet ér és azt, hogy a tárgy mintatanterv szerinti-e vagy szabadon választható (a tárgyra kapott jegyet később szerkeszthetjük). Sikeres hozzáadás esetén a Tantárgyak szekcióban a hozzáadás gomb felett jelennek meg a tárgyak kártyák formájában. Ha a gomb nem látszik, ne ijedjünk meg, az oldal tartalma görgethető.',
               ),
               const SizedBox(
                 height: 20,
@@ -156,7 +157,7 @@ class InfoPage extends StatelessWidget {
               headerText(
                   'Alkalmazás verziója', Theme.of(context).colorScheme.primary),
               descriptionText(
-                '2.1.0.0',
+                '2.2.0.0',
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kreditindex_calculator/commondatacard.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -282,15 +283,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    "Felvett kreditek száma: ${statistics.creditCount}",
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  CommonDataCard.showDataCard('Felvett kreditek száma:', statistics.creditCount),
                   const SizedBox(height: 10),
-                  Text(
-                    "Teljesített kreditek száma: ${statistics.finalCreditCount}",
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  CommonDataCard.showDataCard('Teljesített kreditek száma:', statistics.finalCreditCount),
                   const SizedBox(height: 10),
 
                   //if summarizedCreditIndex is set to visible
