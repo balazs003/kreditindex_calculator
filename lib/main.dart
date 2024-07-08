@@ -2,6 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/all_data_page.dart';
 import 'package:kreditindex_calculator/credit_division_notifier.dart';
+import 'package:kreditindex_calculator/greetings_page.dart';
 import 'package:kreditindex_calculator/info_page.dart';
 import 'package:kreditindex_calculator/settings_page.dart';
 import 'package:kreditindex_calculator/subject.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
             '/alldata': (context) => const AllDataPage(),
             '/settings': (context) => const SettingsPage(),
             '/info': (context) => const InfoPage(),
+            '/greeting': (context) => const GreetingsPage(),
           },
         ),
       ),

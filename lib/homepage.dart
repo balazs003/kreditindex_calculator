@@ -20,6 +20,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  late bool? firstOpening;
+  String firstOpeningKey = 'firstopening';
+
   late int currentSemester = 1;
   int semesterCount = 11;
   String currentSemesterNumberKey = 'currentSemesterNumber';
@@ -49,6 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    handleFirstOpening();
 
     subjectList = Provider.of<SubjectList>(context, listen: false);
     //IMPORTANT: setting current semester value for subjectlist is done in loadAllData() meththod
@@ -95,6 +100,16 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       subjectList.setCurrentSemesterNumber(currentSemester);
     });
+  }
+
+  Future<void> handleFirstOpening() async {
+    var prefs = await SharedPreferences.getInstance();
+    firstOpening = prefs.getBool(firstOpeningKey);
+
+    if(firstOpening == null && mounted){
+      Navigator.pushReplacementNamed(context, '/greeting');
+      await prefs.setBool(firstOpeningKey, false);
+    }
   }
 
   Future<void> saveCurrentSemesterNumber() async {
