@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
           title: 'ÁtlagoSCH 2.0',
           theme: theme,
           darkTheme: darkTheme,
-          home: const MyHomePage(title: 'Kezdőlap'),
+          home: const GreetingsPage(),//const MyHomePage(title: 'Kezdőlap'),
           routes: {
             '/alldata': (context) => const AllDataPage(),
             '/settings': (context) => const SettingsPage(),
