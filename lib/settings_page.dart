@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'credit_division_notifier.dart';
+import 'gradient_singleton.dart';
 
 enum ThemeItem { light, dark, system }
 enum CurriculumItem {bmeVikMi2022, bmeVikMi2014}
@@ -121,13 +122,22 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Beállítások"),
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/');
-          },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
+          ),
+          child: AppBar(
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            backgroundColor: Colors.transparent,
+            title: Text("Beállítások", style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
+            leading: BackButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/');
+              },
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(

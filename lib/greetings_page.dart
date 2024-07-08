@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'gradient_singleton.dart';
+
 class GreetingsPage extends StatefulWidget {
   const GreetingsPage({super.key});
 
@@ -63,15 +65,7 @@ class _GreetingsPageState extends State<GreetingsPage>
         child: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                Theme.of(context).primaryColor,
-                Theme.of(context).primaryColorDark,
-              ],
-              tileMode: TileMode.mirror,
-            ),
+            gradient: LinearGradientSingleton.getGradientInstance(context)
           ),
           child: Center(
             child: Padding(

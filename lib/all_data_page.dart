@@ -6,6 +6,7 @@ import 'package:kreditindex_calculator/result_panel.dart';
 
 import 'alldata_statistics.dart';
 import 'commondatacard.dart';
+import 'gradient_singleton.dart';
 
 class AllDataPage extends StatefulWidget {
   const AllDataPage({super.key});
@@ -37,26 +38,32 @@ class _AllDataPageState extends State<AllDataPage> {
     indexPanel = ResultPanel(
         name: 'Összesített kreditindex',
         initialValue: statistics.creditIndex,
-        panelColor: Colors.blueAccent);
+        panelColor: Colors.lightBlue);
     weightedPanel = ResultPanel(
         name: 'Összesített súlyozott kreditindex',
         initialValue: statistics.weightedCreditIndex,
-        panelColor: Colors.deepOrangeAccent);
+        panelColor: Colors.blueAccent);
     averagePanel = ResultPanel(
         name: 'Összesített átlag',
         initialValue: statistics.average,
-        panelColor: Colors.redAccent);
+        panelColor: Colors.indigoAccent);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .inversePrimary,
-        title: const Text('Összesített adatok'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
+          ),
+          child: AppBar(
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            backgroundColor: Colors.transparent,
+            title: Text('Összesített adatok', style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
+          ),
+        ),
       ),
       body: Consumer<SubjectList>(
         builder: (context, subjectList, child) =>

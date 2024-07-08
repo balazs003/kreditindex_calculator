@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'gradient_singleton.dart';
+
 class SetupPage extends StatefulWidget {
   const SetupPage({super.key});
 
@@ -63,14 +65,7 @@ class _SetupPageState extends State<SetupPage>
         child: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                Theme.of(context).primaryColor,
-                Theme.of(context).primaryColorDark,
-              ],
-            ),
+            gradient: LinearGradientSingleton.getGradientInstance(context)
           ),
           child: SingleChildScrollView(
             child: Center(
@@ -132,14 +127,7 @@ class _SetupPageState extends State<SetupPage>
                                     const SizedBox(height: 20),
                                     ShaderMask(
                                       shaderCallback: (Rect bounds) {
-                                        return LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: <Color>[
-                                            Theme.of(context).primaryColor,
-                                            Theme.of(context).primaryColorDark,
-                                          ],
-                                        ).createShader(bounds);
+                                        return LinearGradientSingleton.getGradientInstance(context).createShader(bounds);
                                       },
                                       child: const Text(
                                         'Fő funkciók:',
@@ -219,16 +207,7 @@ class _SetupPageState extends State<SetupPage>
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 20, vertical: 10),
                                             decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: <Color>[
-                                                  Theme.of(context)
-                                                      .primaryColor,
-                                                  Theme.of(context)
-                                                      .primaryColorDark,
-                                                ],
-                                              ),
+                                              gradient: LinearGradientSingleton.getGradientInstance(context),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
@@ -295,14 +274,7 @@ class FeatureItem extends StatelessWidget {
         children: [
           ShaderMask(
             shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[
-                  Theme.of(context).primaryColor,
-                  Theme.of(context).primaryColorDark,
-                ],
-              ).createShader(bounds);
+              return LinearGradientSingleton.getGradientInstance(context).createShader(bounds);
             },
             child: Icon(
               icon,

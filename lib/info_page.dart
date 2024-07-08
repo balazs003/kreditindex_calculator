@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'gradient_singleton.dart';
+
 Text headerText(String data, Color color) {
   return Text(
     data,
@@ -23,13 +25,22 @@ class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Információ"),
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
+          ),
+          child: AppBar(
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            backgroundColor: Colors.transparent,
+            title: Text("Információ", style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
+            leading: BackButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -169,7 +180,7 @@ class InfoPage extends StatelessWidget {
                   headerText(
                       'Alkalmazás verziója', Theme.of(context).colorScheme.primary),
                   descriptionText(
-                    '2.3.1.0',
+                    '2.3.2.1',
                   ),
                 ],
               ),

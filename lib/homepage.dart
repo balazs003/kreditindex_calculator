@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kreditindex_calculator/commondatacard.dart';
+import 'package:kreditindex_calculator/gradient_singleton.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -62,22 +63,22 @@ class _MyHomePageState extends State<MyHomePage> {
     indexPanel = ResultPanel(
         name: 'Kreditindex',
         initialValue: statistics.creditIndex,
-        panelColor: Colors.blueAccent,
+        panelColor: Colors.lightBlue,
         key: indexPanelKey);
     summarizedIndexPanel = ResultPanel(
       name: 'Kreditindex a korábbi félévvel együtt',
       initialValue: statistics.summarizedCreditIndex,
-      panelColor: Colors.deepPurpleAccent,
+      panelColor: Colors.cyan,
       key: summarizedIndexPanelKey);
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
         initialValue: statistics.weightedCreditIndex,
-        panelColor: Colors.deepOrangeAccent,
+        panelColor: Colors.blueAccent,
         key: weightedPanelKey);
     averagePanel = ResultPanel(
         name: 'Átlag',
         initialValue: statistics.average,
-        panelColor: Colors.redAccent,
+        panelColor: Colors.indigoAccent,
         key: averagePanelKey);
 
     loadAllSavedData().then((_) {
@@ -184,16 +185,16 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('$i. félév',
             style: TextStyle(
                 fontSize: 17,
-                color: i == currentSemester ? Theme.of(context).primaryColorDark : const TextStyle().color,
+                color: i == currentSemester ? Theme.of(context).primaryIconTheme.color : const TextStyle().color,
                 fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
             ),),
             onTap: () {
               onTapSemester(i);
             },
-            tileColor: i == currentSemester ? Theme.of(context).colorScheme.inversePrimary : const CardTheme().color,
+            tileColor: i == currentSemester ? Colors.indigoAccent : const CardTheme().color,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
-              side: i == currentSemester ? BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 2) : BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 2)
+              side: i == currentSemester ? const BorderSide(color: Colors.indigoAccent, width: 2) : const BorderSide(color: Colors.indigoAccent, width: 2)
             ),
           ),
         )
@@ -215,41 +216,53 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('$currentSemester. félév'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/alldata');
-            },
-            icon: const Icon(Icons.poll),
-            tooltip: 'Összesített adatok',
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings').then((_) async {
-                await loadAllSavedData().then((_) {
-                  //Delay is needed for all data to be loaded so the content of the cards can be shown
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    setState(() {
-                      updateAllData();
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            title: Text('$currentSemester. félév',
+            style: TextStyle(
+              color: Theme.of(context).primaryIconTheme.color,
+            ),),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/alldata');
+                },
+                icon: Icon(Icons.poll, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Összesített adatok',
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/settings').then((_) async {
+                    await loadAllSavedData().then((_) {
+                      //Delay is needed for all data to be loaded so the content of the cards can be shown
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        setState(() {
+                          updateAllData();
+                        });
+                      });
                     });
                   });
-                });
-              });
-            },
-            icon: const Icon(Icons.settings),
-            tooltip: 'Beállítások',
+                },
+                icon: Icon(Icons.settings, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Beállítások',
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/info');
+                },
+                icon: Icon(Icons.info, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Információ',
+              )
+            ],
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/info');
-            },
-            icon: const Icon(Icons.info),
-            tooltip: 'Információ',
-          )
-        ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -264,15 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 currentAccountPicture: Icon(Icons.account_circle_rounded, color: Theme.of(context).primaryColorLight, size: 70,),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[
-                      Theme.of(context).primaryColor,
-                      Theme.of(context).primaryColorDark,
-                    ],
-                    tileMode: TileMode.mirror,
-                  ),
+                  gradient: LinearGradientSingleton.getGradientInstance(context)
                 ),
               ),
             ),
@@ -350,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     _showEditSubjectDialog(context, subject);
                                   },
                                   borderRadius: BorderRadius.circular(15),
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Colors.blueAccent,
                                   foregroundColor: Colors.white,
                                   icon: Icons.edit,
                                   label: 'Szerkesztés')
@@ -365,7 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       context, subject);
                                 },
                                 borderRadius: BorderRadius.circular(15),
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.redAccent,
                                 foregroundColor: Colors.white,
                                 icon: Icons.delete,
                                 label: 'Törlés',

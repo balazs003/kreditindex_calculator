@@ -50,7 +50,7 @@ class AllDataStatistics extends Statistics {
       }
     }
 
-    creditIndex = sum / creditDivisionNumber.toDouble();
+    creditIndex = creditDivisionNumber == 0 ? 0.0 : sum / creditDivisionNumber.toDouble();
   }
 
   @override
