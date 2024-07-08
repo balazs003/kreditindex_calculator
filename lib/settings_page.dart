@@ -9,10 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'credit_division_notifier.dart';
 
 enum ThemeItem { light, dark, system }
-enum CurriculumItem {bmeVikMi}
+enum CurriculumItem {bmeVikMi2022, bmeVikMi2014}
 
 final Map<CurriculumItem, String> curriculumMap = {
-  CurriculumItem.bmeVikMi : 'BME VIK mérnökinformatikus 2022'
+  CurriculumItem.bmeVikMi2022 : 'BME VIK mérnökinformatikus 2022',
+  CurriculumItem.bmeVikMi2014 : 'BME VIK mérnökinformatikus 2014'
 };
 
 class SettingsPage extends StatefulWidget {
@@ -470,8 +471,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           setState(() {
                             selectedCurriculumItem = curriculumItem;
                             switch(selectedCurriculumItem) {
-                              case CurriculumItem.bmeVikMi:
+                              case CurriculumItem.bmeVikMi2022:
                                 selectedSubjectList = Curricula.bmeVikMi2022;
+                                break;
+                              case CurriculumItem.bmeVikMi2014:
+                                selectedSubjectList = Curricula.bmeVikMi2014;
                                 break;
                               case null:
                               //do nothing
