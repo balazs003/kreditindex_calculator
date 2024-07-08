@@ -143,7 +143,7 @@ class _GreetingsPageState extends State<GreetingsPage>
                           opacity: _opacityAnimation.value,
                           child: GestureDetector(
                             onTap: () {
-                              // Navigate to the next screen
+                              Navigator.pushNamed(context, '/setup');
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
