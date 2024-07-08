@@ -345,7 +345,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           }
                               : null,
                           child: const Text(
-                            'ÚJ FÉLÉVEK TÖRLÉSE',
+                            'Új félévek törlése',
                             style: TextStyle(
                               color: Colors.red,
                             ),
@@ -378,7 +378,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 }
                               : null,
                           child: const Text(
-                            'TÖRLÉS',
+                            'Törlés',
                             style: TextStyle(
                               color: Colors.red,
                             ),

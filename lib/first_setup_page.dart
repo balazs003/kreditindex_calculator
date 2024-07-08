@@ -187,6 +187,11 @@ class _SetupPageState extends State<SetupPage>
                                           'Szerkeszd és töröld a tárgyakat egyszerűen oldalra húzással',
                                     ),
                                     const FeatureItem(
+                                      icon: Icons.swap_vert,
+                                      text:
+                                      'Rendezd át a tantárgyak sorrendjét könnyedén',
+                                    ),
+                                    const FeatureItem(
                                       icon: Icons.dark_mode,
                                       text:
                                           'Használd az alkalmazást nappali vagy éjszakai módban',
