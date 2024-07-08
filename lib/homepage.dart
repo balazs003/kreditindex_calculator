@@ -433,10 +433,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Theme.of(context).primaryColor)
+                    ),
                     onPressed: () {
                       _showAddSubjectDialog(context);
                     },
-                    child: const Text('Új tárgy felvétele'),
+                    child: Text('Új tárgy felvétele', style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
                   ),
                 ],
               ),

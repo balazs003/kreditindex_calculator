@@ -480,6 +480,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: CurriculumItem.values.map((curriculumItem) {
                       bool isSelected = selectedCurriculumItem == curriculumItem;
                       return ListTile(
+                        key: ValueKey(curriculumItem),
                         title: Text(curriculumMap[curriculumItem] ?? 'HIBA'),
                         tileColor: isSelected ? Colors.blue.withOpacity(0.1) : null,
                         onTap: () {
@@ -513,6 +514,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () {
                       subjectList.setSelectedCurriculumSubjectList(selectedSubjectList);
                       Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Tantárgyak sikeresen betöltve!'))
+                      );
                     },
                     child: const Text('Betölt'),
                   ),
