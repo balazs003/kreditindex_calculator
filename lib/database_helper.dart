@@ -38,11 +38,6 @@ class DatabaseHelper {
 
     //its necessary to set the currently added subject's id to the one that's been assigned to it in the database
     subject.id = id;
-
-    print('ADATBAZISBAN');
-    for(var subject in await getSubjects()){
-      print('${subject.name} ${subject.id}${subject.semester}${subject.seqnum}');
-    }
   }
 
   Future<void> updateSubject(Subject subject) async {
