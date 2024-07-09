@@ -1,28 +1,37 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'database_helper.dart';
 
 class Subject {
+  late int id;
   late String name;
   late int weight;
   late int grade;
   late bool sure;
   late int seqnum;
+  late int semester;
+  late bool optional;
 
-  Subject({required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum}) {
+  Subject({required int newId, required String newName, required int newWeight, required int newGrade, required bool newSure, required newSeqnum, required newSemester, required newOptional}) {
+    id = newId;
     name = newName;
     weight = newWeight;
     grade = newGrade;
     sure = newSure;
     seqnum = newSeqnum;
+    semester = newSemester;
+    optional = newOptional;
   }
 
   Map<String, dynamic> toMap() {
     return {
+      //'id': id,
       'name': name,
       'weight': weight,
       'grade': grade,
-      'sure': sure ? 1 : 0,
+      'sure': sure ? 1 : 0, //boolean
       'seqnum': seqnum,
+      'semester': semester,
+      'optional': optional ? 1 : 0, //boolean
     };
   }
 
@@ -36,7 +45,7 @@ class Subject {
     updateInDatabase();
   }
 
-  void saveToDatabase() async {
+  Future<void> saveToDatabase() async {
     await DatabaseHelper().insertSubject(this);
   }
 
@@ -45,26 +54,41 @@ class Subject {
   }
 
   void deleteFromDatabase() async {
-    await DatabaseHelper().deleteSubject(name);
+    await DatabaseHelper().deleteSubject(this);
   }
 }
 
 class SubjectList extends ChangeNotifier {
   List<Subject> subjects = [];
+  List<Subject> filteredSubjects = [];
 
-  void addSubject(Subject subject) {
+  int currentSemesterNumber = 0;
+
+  void setCurrentSemesterNumber(int semesterNumber){
+    currentSemesterNumber = semesterNumber;
+    generateCurrentSemesterSubjects();
+  }
+
+  void generateCurrentSemesterSubjects(){
+    filteredSubjects.clear();
+    filteredSubjects = subjects
+        .where((subject) => subject.semester == currentSemesterNumber)
+        .toList();
+  }
+
+  void addSubject(Subject subject) async {
     subjects.add(subject);
     subject.saveToDatabase();
+    generateCurrentSemesterSubjects();
     notifyListeners();
   }
 
-  void modifySubject(Subject oldSubject, Subject newSubject) {
+  void modifySubject(Subject oldSubject, Subject newSubject) async {
     int index = subjects.indexOf(oldSubject);
-    if (index != -1) {
-      subjects[index] = newSubject;
-      newSubject.updateInDatabase();
-      notifyListeners();
-    }
+    subjects[index] = newSubject;
+    newSubject.updateInDatabase();
+    generateCurrentSemesterSubjects();
+    notifyListeners();
   }
 
   void removeSubject(Subject subject) {
@@ -73,15 +97,47 @@ class SubjectList extends ChangeNotifier {
 
     //updating seqnums after deletion
     updateSubjectSeqnums();
+    generateCurrentSemesterSubjects();
+    notifyListeners();
+  }
+
+  void reorderSubjects(int newIndex, int oldIndex) {
+    Subject item = filteredSubjects.removeAt(oldIndex);
+    filteredSubjects.insert(newIndex, item);
+
+    //copy of the filtered list
+    List<Subject> reorderedSubjects = List.from(filteredSubjects);
+
+    //removing subjects in filteredSubjects from the main list and the database
+    List<Subject> subjectsToRemove = [];
+    for (var subject in filteredSubjects) {
+      subjectsToRemove.add(subject);
+    }
+    for (var subject in subjectsToRemove) {
+      subjects.remove(subject);
+      subject.deleteFromDatabase();
+    }
+
+    //re-adding newly ordered subjects to main list and saving to database
+    for (var subject in reorderedSubjects) {
+      subjects.add(subject);
+      subject.saveToDatabase();
+    }
+
+    updateSubjectSeqnums();
+
+    generateCurrentSemesterSubjects();
     notifyListeners();
   }
 
   void updateSubjectSeqnums(){
+
     for(int i=0; i<subjects.length; i++){
       Subject currentSubject = subjects[i];
       currentSubject.seqnum = i;
       currentSubject.updateInDatabase();
     }
+
     notifyListeners();
   }
 
@@ -90,11 +146,31 @@ class SubjectList extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeNewSemesterSubjects(int initialSemesterCount) {
+    List<Subject> tempSubjectList = List.from(subjects);
+    for(var subject in tempSubjectList){
+      if(subject.semester > initialSemesterCount){
+        subjects.remove(subject);
+        subject.deleteFromDatabase();
+      }
+    }
+    notifyListeners();
+  }
+
   void removeAllSubjects() {
     for (var subject in subjects) {
       subject.deleteFromDatabase();
     }
     subjects.clear();
+    notifyListeners();
+  }
+
+  void setSelectedCurriculumSubjectList(List<Subject> selectedSubjectList){
+    removeAllSubjects();
+
+    for(var subject in selectedSubjectList){
+      addSubject(subject);
+    }
     notifyListeners();
   }
 

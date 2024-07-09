@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kreditindex_calculator/commondatacard.dart';
+import 'package:kreditindex_calculator/gradient_singleton.dart';
 import 'package:kreditindex_calculator/statistics.dart';
 import 'package:kreditindex_calculator/subject.dart';
 import 'package:provider/provider.dart';
@@ -6,8 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:kreditindex_calculator/result_panel.dart';
 
+import 'filtered_statistics.dart';
+
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -17,7 +21,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  //double _earlierCreditIndex = 0.0;
+  late bool? firstOpening;
+  String firstOpeningKey = 'firstopening';
+
+  late int currentSemester = 1;
+  int semesterCount = 11;
+  String currentSemesterNumberKey = 'currentSemesterNumber';
+  String semesterCountKey = 'semestercount';
 
   late SubjectList subjectList;
   late Statistics statistics;
@@ -44,40 +54,83 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    handleFirstOpening();
+
     subjectList = Provider.of<SubjectList>(context, listen: false);
-    statistics = Statistics(newSubjectList: subjectList, newContext: context);
+    //IMPORTANT: setting current semester value for subjectlist is done in loadAllData() meththod
+    statistics = FilteredStatistics(newSubjectList: subjectList, newContext: context);
 
     indexPanel = ResultPanel(
         name: 'Kreditindex',
         initialValue: statistics.creditIndex,
-        panelColor: Colors.blueAccent,
+        panelColor: Colors.lightBlue,
         key: indexPanelKey);
-    summarizedIndexPanel = ClickableResultPanel(
+    summarizedIndexPanel = ResultPanel(
       name: 'Kreditindex a korábbi félévvel együtt',
       initialValue: statistics.summarizedCreditIndex,
-      panelColor: Colors.deepPurpleAccent,
-      key: summarizedIndexPanelKey,
-      onTap: () => _showSetEarlierCreditIndex(context),
-    );
+      panelColor: Colors.cyan,
+      key: summarizedIndexPanelKey);
     weightedPanel = ResultPanel(
         name: 'Súlyozott kreditindex',
         initialValue: statistics.weightedCreditIndex,
-        panelColor: Colors.deepOrangeAccent,
+        panelColor: Colors.blueAccent,
         key: weightedPanelKey);
     averagePanel = ResultPanel(
         name: 'Átlag',
         initialValue: statistics.average,
-        panelColor: Colors.redAccent,
+        panelColor: Colors.indigoAccent,
         key: averagePanelKey);
 
-    loadAllSavedData();
+    loadAllSavedData().then((_) {
+      //Delay is needed for all data to be loaded so the content of the cards can be shown
+      Future.delayed(const Duration(milliseconds: 200), () {
+        setState(() {
+          updateAllData();
+        });
+      });
+    });
   }
 
   Future<void> loadAllSavedData() async {
+    await loadCurrentSemesterNumber();
+    await loadSemesterCount();
     await loadSavedSubjectData();
     await loadSavedCardVisibilityData();
-    await statistics.loadEarlierCreditIndex();
-    setState(() {});
+
+    //setting the data to show currently
+    setState(() {
+      subjectList.setCurrentSemesterNumber(currentSemester);
+    });
+  }
+
+  Future<void> handleFirstOpening() async {
+    var prefs = await SharedPreferences.getInstance();
+    firstOpening = prefs.getBool(firstOpeningKey);
+
+    if(firstOpening == null && mounted){
+      Navigator.pushReplacementNamed(context, '/greeting');
+      await prefs.setBool(firstOpeningKey, false);
+    }
+  }
+
+  Future<void> saveCurrentSemesterNumber() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(currentSemesterNumberKey, currentSemester);
+  }
+
+  Future<void> saveSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(semesterCountKey, semesterCount);
+  }
+
+  Future<void> loadSemesterCount() async {
+    var prefs = await SharedPreferences.getInstance();
+    semesterCount = prefs.getInt(semesterCountKey) ?? 11;
+  }
+
+  Future<void> loadCurrentSemesterNumber() async {
+    var prefs = await SharedPreferences.getInstance();
+    currentSemester = prefs.getInt(currentSemesterNumberKey) ?? 1;
   }
 
   Future<void> loadSavedCardVisibilityData() async {
@@ -99,8 +152,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Color getSubjectColor(bool sure) {
-    return sure ? Colors.green : Colors.orangeAccent;
+  Color getSubjectColor(int grade, bool sure) {
+    if(grade < 2) return Colors.red;
+    return sure ? Theme.of(context).colorScheme.primary : Colors.orangeAccent;
   }
 
   IconData getSubjectIcon(bool sure) {
@@ -108,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void updateAllData() {
-    statistics.calculateAllData();
+    statistics.calculateAllData(currentSemester);
     setPanelData();
   }
 
@@ -121,37 +175,125 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  List<Widget> buildSemesterList(int semesterCount){
+    List<Widget> semesters = [];
+    for(int i=1; i<=semesterCount; i++){
+      semesters.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text('$i. félév',
+            style: TextStyle(
+                fontSize: 17,
+                color: i == currentSemester ? Theme.of(context).primaryIconTheme.color : const TextStyle().color,
+                fontWeight: i == currentSemester ? FontWeight.bold : FontWeight.normal,
+            ),),
+            onTap: () {
+              onTapSemester(i);
+            },
+            tileColor: i == currentSemester ? Colors.indigoAccent : const CardTheme().color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+              side: i == currentSemester ? const BorderSide(color: Colors.indigoAccent, width: 2) : const BorderSide(color: Colors.indigoAccent, width: 2)
+            ),
+          ),
+        )
+      );
+    }
+
+    return semesters;
+  }
+
+  void onTapSemester(int semesterNumber){
+    currentSemester = semesterNumber;
+    saveCurrentSemesterNumber();
+    subjectList.setCurrentSemesterNumber(currentSemester);
+    updateAllData();
+    Navigator.pop(context);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings').then((_) async {
-                await loadAllSavedData().then((_) {
-                  //Delay is needed for all data to be loaded so the content of the cards can be shown
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    setState(() {
-                      updateAllData();
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            title: Text('$currentSemester. félév',
+            style: TextStyle(
+              color: Theme.of(context).primaryIconTheme.color,
+            ),),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/alldata');
+                },
+                icon: Icon(Icons.poll, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Összesített adatok',
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/settings').then((_) async {
+                    await loadAllSavedData().then((_) {
+                      //Delay is needed for all data to be loaded so the content of the cards can be shown
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        setState(() {
+                          updateAllData();
+                        });
+                      });
                     });
                   });
-                });
-              });
-            },
-            icon: const Icon(Icons.settings),
-            tooltip: 'Beállítások',
+                },
+                icon: Icon(Icons.settings, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Beállítások',
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/info');
+                },
+                icon: Icon(Icons.info, color: Theme.of(context).primaryIconTheme.color,),
+                tooltip: 'Információ',
+              )
+            ],
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/info');
-            },
-            icon: const Icon(Icons.info),
-            tooltip: 'Információ',
-          )
-        ],
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 40),
+          children: [
+            //wrapped int Theme widget to make divider line transparent
+            Theme(
+              data: Theme.of(context).copyWith(dividerTheme: const DividerThemeData(color: Colors.transparent)),
+              child: UserAccountsDrawerHeader(
+                accountName: Text('ÁtlagoSCH 2.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).primaryColorLight),),
+                accountEmail: Text('Fejlesztette: balazs003', style: TextStyle(color: Theme.of(context).primaryColorLight),),
+                currentAccountPicture: Icon(Icons.account_circle_rounded, color: Theme.of(context).primaryColorLight, size: 70,),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  gradient: LinearGradientSingleton.getGradientInstance(context)
+                ),
+              ),
+            ),
+            ...buildSemesterList(semesterCount),
+
+            TextButton(
+                onPressed: () {
+                  setState(() {
+                    ++semesterCount;
+                    saveSemesterCount();
+                  });
+                },
+                child: const Text('+ Félév hozzáadása'),
+            )
+          ],
+        ),
       ),
       body: Consumer<SubjectList>(
         builder: (context, subjectList, child) => SingleChildScrollView(
@@ -161,21 +303,14 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    "Felvett kreditek száma: ${statistics.creditCount}",
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  CommonDataCard.showDataCard('Felvett kreditek száma:', statistics.creditCount),
                   const SizedBox(height: 10),
-                  Text(
-                    "Teljesített kreditek száma: ${statistics.finalCreditCount}",
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  CommonDataCard.showDataCard('Teljesített kreditek száma:', statistics.finalCreditCount),
                   const SizedBox(height: 10),
 
                   //if summarizedCreditIndex is set to visible
                   if (_showSummarizedCreditIndexCard) summarizedIndexPanel,
-                  if (_showSummarizedCreditIndexCard)
-                    const SizedBox(height: 10),
+                  if (_showSummarizedCreditIndexCard) const SizedBox(height: 10),
 
                   //if creditIndex is set to visible
                   if (_showCreditIndexCard) indexPanel,
@@ -202,19 +337,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (newIndex > oldIndex) {
                           newIndex -= 1;
                         }
-                        final Subject item = subjectList.subjects.removeAt(oldIndex);
-                        subjectList.subjects.insert(newIndex, item);
-
-                        subjectList.updateSubjectSeqnums();
+                        subjectList.reorderSubjects(newIndex, oldIndex);
                       });
                     },
-                    children: List.generate(subjectList.size(), (index) {
-                      Subject subject = subjectList.subjects[index];
+                    children: List.generate(subjectList.filteredSubjects.length, (index) {
+                      Subject subject = subjectList.filteredSubjects[index];
                       return Padding(
-                        key: Key(subject.name),
+                        key: Key(subject.id.toString()),
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Slidable(
-                          key: Key(subject.name),
+                          key: Key(subject.id.toString()),
                           startActionPane: ActionPane(
                             motion: const StretchMotion(),
                             children: [
@@ -223,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     _showEditSubjectDialog(context, subject);
                                   },
                                   borderRadius: BorderRadius.circular(15),
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Colors.blueAccent,
                                   foregroundColor: Colors.white,
                                   icon: Icons.edit,
                                   label: 'Szerkesztés')
@@ -238,7 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       context, subject);
                                 },
                                 borderRadius: BorderRadius.circular(15),
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.redAccent,
                                 foregroundColor: Colors.white,
                                 icon: Icons.delete,
                                 label: 'Törlés',
@@ -256,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              textColor: getSubjectColor(subject.sure),
+                              textColor: getSubjectColor(subject.grade, subject.sure),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -276,7 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         updateAllData();
                                       });
                                     },
-                                    activeColor: getSubjectColor(subject.sure),
+                                    activeColor: getSubjectColor(subject.grade, subject.sure),
                                   ),
                                 ],
                               ),
@@ -284,7 +416,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 icon: Icon(
                                   getSubjectIcon(subject.sure),
                                   size: 30,
-                                  color: getSubjectColor(subject.sure),
+                                  color: getSubjectColor(subject.grade, subject.sure),
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -301,10 +433,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Theme.of(context).primaryColor)
+                    ),
                     onPressed: () {
                       _showAddSubjectDialog(context);
                     },
-                    child: const Text('Új tárgy felvétele'),
+                    child: Text('Új tárgy felvétele', style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
                   ),
                 ],
               ),
@@ -356,14 +491,15 @@ class _MyHomePageState extends State<MyHomePage> {
     TextEditingController nameController = TextEditingController();
     TextEditingController weightController = TextEditingController();
 
+    bool isCreditValid = true;
+    bool isNameEmpty = false;
+    bool isOptional = false;
+
     if (subject != null) {
       nameController.text = subject.name;
       weightController.text = subject.weight.toString();
+      isOptional = subject.optional;
     }
-
-    bool isCreditValid = true;
-    bool isNameUnique = true;
-    bool isNameEmpty = false;
 
     return showDialog(
       context: context,
@@ -378,17 +514,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    enabled: subject == null,
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Név',
                       errorText: isNameEmpty
                           ? 'A név nem lehet üres!'
-                          : (isNameUnique ? null : 'A név már létezik!'),
+                          : null,
                     ),
                     onChanged: (value) {
                       setState(() {
-                        isNameUnique = nameIsUnique(value, subject != null);
                         isNameEmpty = value.isEmpty;
                       });
                     },
@@ -408,6 +542,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                   ),
+                  const SizedBox(height: 10,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                          value: isOptional,
+                          onChanged: (value) {
+                            setState((){
+                              isOptional = value ?? false;
+                            });
+                          }
+                      ),
+                      const Text('Szabadon választható')
+                    ],
+                  )
                 ],
               ),
               actions: [
@@ -418,14 +567,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Text('Mégse'),
                 ),
                 TextButton(
-                  onPressed: isNameEmpty || !isNameUnique || !isCreditValid
+                  onPressed: isNameEmpty || !isCreditValid
                       ? null
                       : () {
                           setState(() {
                             isCreditValid =
                                 creditValidation(weightController.text);
-                            isNameUnique = nameIsUnique(
-                                nameController.text, subject != null);
                             isNameEmpty = nameController.text.isEmpty;
                           });
 
@@ -435,28 +582,30 @@ class _MyHomePageState extends State<MyHomePage> {
                           int grade = 5;
                           bool sure = true;
                           int seqnum = subjectList.size();
+                          int id = -1;
 
                           //values depend on what you modify in the dialog
                           if (subject != null) {
-                            name = name == subject.name
-                                ? subject.name
-                                : nameController.text.trim();
-                            weight = weight == subject.weight
-                                ? subject.weight
-                                : int.tryParse(weightController.text) ?? 200;
+                            id = subject.id;
+                            name = nameController.text.trim();
+                            weight = int.tryParse(weightController.text) ?? 200;
                             grade = subject.grade;
                             sure = subject.sure;
                             seqnum = subject.seqnum;
+                            //isOptional is already set
                           }
 
-                          if (!isNameEmpty && isNameUnique && isCreditValid) {
+                          if (!isNameEmpty && isCreditValid) {
                             //Necessary to create new subject here and also to set seqnum, although it could be handled by subjectlist class, but this way it's consistent
                             Subject newSubject = Subject(
+                                newId: id,
                                 newName: name,
                                 newWeight: weight,
                                 newGrade: grade,
                                 newSure: sure,
-                                newSeqnum: seqnum);
+                                newSeqnum: seqnum,
+                                newSemester: currentSemester,
+                                newOptional: isOptional);
 
                             setState(() {
                               if (subject == null) {
@@ -488,89 +637,5 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showEditSubjectDialog(
       BuildContext context, Subject oldSubject) async {
     return _showSubjectDialog(context, subject: oldSubject);
-  }
-
-  void _showSetEarlierCreditIndex(BuildContext context) async {
-    TextEditingController earlierCreditController =
-        TextEditingController(text: statistics.earlierCreditIndex.toString());
-    bool hasError = false;
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, setState) {
-            return AlertDialog(
-              title: const Text("Előző félévben a kreditindexed:"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                      controller: earlierCreditController,
-                      decoration: InputDecoration(
-                        labelText: 'Korábbi kreditindex',
-                        errorText: hasError ? 'Helytelen érték!' : null,
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        RegExp validInput = RegExp(r'^\d\.\d+$');
-                        if (validInput.hasMatch(earlierCreditController.text)) {
-                          setState(() {
-                            hasError = false;
-                          });
-                        } else {
-                          setState(() {
-                            hasError = true;
-                          });
-                        }
-                      }),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Mégse'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (hasError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Ponttal elválasztott tizedes törtet írj be (pl.: 4.52)'),
-                        ),
-                      );
-                    } else {
-                      double value = double.tryParse(earlierCreditController.text) ?? 0.0;
-                      statistics.saveEarlierCreditIndex(value);
-                      setState(() {
-                        updateAllData();
-                      });
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text(
-                    'Mentés',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  bool nameIsUnique(String name, bool modifyingSubject) {
-    if (modifyingSubject) return true;
-    name = name.trim().toLowerCase();
-    for (var subject in subjectList.subjects) {
-      if (subject.name.toLowerCase() == name) {
-        return false;
-      }
-    }
-    return true;
   }
 }

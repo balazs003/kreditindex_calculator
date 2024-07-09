@@ -21,7 +21,7 @@ class DatabaseHelper {
       path,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE subjects(name TEXT PRIMARY KEY, weight INTEGER, grade INTEGER, sure INTEGER, seqnum INTEGER)',
+          'CREATE TABLE subjects(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, weight INTEGER, grade INTEGER, sure INTEGER, seqnum INTEGER, semester INTEGER, optional INTEGER)',
         );
       },
       version: 1,
@@ -30,11 +30,14 @@ class DatabaseHelper {
 
   Future<void> insertSubject(Subject subject) async {
     final db = await database;
-    await db.insert(
+    final id = await db.insert(
       'subjects',
       subject.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    //its necessary to set the currently added subject's id to the one that's been assigned to it in the database
+    subject.id = id;
   }
 
   Future<void> updateSubject(Subject subject) async {
@@ -42,31 +45,36 @@ class DatabaseHelper {
     await db.update(
       'subjects',
       subject.toMap(),
-      where: 'name = ?',
-      whereArgs: [subject.name],
+      where: 'id = ?',
+      whereArgs: [subject.id],
     );
   }
 
-  Future<void> deleteSubject(String name) async {
+  Future<void> deleteSubject(Subject subject) async {
     final db = await database;
     await db.delete(
       'subjects',
-      where: 'name = ?',
-      whereArgs: [name],
+      where: 'id = ?',
+      whereArgs: [subject.id],
     );
   }
 
   Future<List<Subject>> getSubjects() async {
     final db = await database;
+
+    //when loading data, subjects are grouped by the semester field, so when we modify the sequence, the seqnums will definitely be changed relative to the subjects in the same semester
     final List<Map<String, dynamic>> maps = await db.query('subjects', orderBy: 'seqnum');
 
     return List.generate(maps.length, (i) {
       return Subject(
+        newId: maps[i]['id'],
         newName: maps[i]['name'],
         newWeight: maps[i]['weight'],
         newGrade: maps[i]['grade'],
         newSure: maps[i]['sure'] == 1,
         newSeqnum: maps[i]['seqnum'],
+        newSemester: maps[i]['semester'],
+        newOptional: maps[i]['optional'] == 1
       );
     });
   }

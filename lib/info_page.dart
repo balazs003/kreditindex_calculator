@@ -1,187 +1,190 @@
 import 'package:flutter/material.dart';
 
+import 'gradient_singleton.dart';
+
+Text headerText(String data, Color color) {
+  return Text(
+    data,
+    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+  );
+}
+
+Text descriptionText(String data) {
+  return Text(
+    data,
+    textAlign: TextAlign.start,
+    style: const TextStyle(
+      fontSize: 17,
+    ),
+  );
+}
+
 class InfoPage extends StatelessWidget {
+  const InfoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Információ"),
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradientSingleton.getGradientInstance(context)
+          ),
+          child: AppBar(
+            iconTheme: IconThemeData(color: Theme.of(context).primaryIconTheme.color,),
+            backgroundColor: Colors.transparent,
+            title: Text("Információ", style: TextStyle(color: Theme.of(context).primaryIconTheme.color),),
+            leading: BackButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Az alkalmazás használata',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold
-                ),
+          padding: const EdgeInsets.all(15),
+          child: Card(
+            elevation: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Az alkalmazás használata',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  Divider(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText('Megjelenítendő félév kiválasztása',
+                      Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                      'A bal felső sarokban lévő gombra kattintva megjelenik egy menü, ahonnan kiválaszthatjuk, hogy melyik félévünknek az adatait akarjuk látni a kezdőlapon. A lista görgethető.'),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText('Összesített adatok megtekintése',
+                      Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                      'Lehetőségünk van megtekinteni az egész egyetemi pályafutásunk alatt szerzett eredményeinket összesítve. Ehhez kattintsunk az oldal tetején a fogaskeréktől balra található kis sávokat tartalmazó ikonra.'),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Kreditek száma', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                      'Az oldal tetején a felvett kreditek összege látszik, alatta pedig a teljesítetteké. A teljesített kreditek száma alapvetően megegyezik a felvett kreditek számával, kivéve, ha egy tárgyra kapott jegy elégtelen.'),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText('Statisztikai kártyák',
+                      Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                      'Az oldal tetején látható színes kártyák közül a beállításokban kiválaszthatjuk, hogy melyiket szeretnénk megjeleníteni.'),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText('Kreditindex a korábbi félévvel együtt',
+                      Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                      'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez az információ a BME VIK-re járó kollégistáknak lehet releváns.'),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Új tárgy felvétele', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A tantárgyak szöveg alatt található. Új tárgy felvétele gomb megnyomása után egy párbeszédablak jelenik meg, amiben megadhatjuk a tárgy nevét, hogy hány kreditet ér és azt, hogy a tárgy mintatanterv szerinti-e vagy szabadon választható (a tárgyra kapott jegyet később szerkeszthetjük). Sikeres hozzáadás esetén a Tantárgyak szekcióban a hozzáadás gomb felett jelennek meg a tárgyak kártyák formájában. Ha a gomb nem látszik, ne ijedjünk meg, az oldal tartalma görgethető.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Jegyek módosítása', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A tárgyak kártyáin lévő csúszka használatával módosíthatjuk az adott tárgyra kapott vagy elvárt jegyet. Ezzel egyidejűleg frissülnek a statisztikai kártyák adatai.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Tárgy megjelölése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A tárgyak kártyáin bal oldalon lévő könyvjelző ikonra bökve megjelölhetjük a tárgyat aszerint, hogy biztosak vagyunk-e az eredményben, vagy még várjuk a végkifejletet. Ilyenkor a tárgyhoz tartozó kártya elemei zöldből sárga, vagy sárgából zöld színre váltanak. Ezzel elkülöníthetjük azokat a tárgyakat, amik eredményében már biztosak vagyunk. Ezt bármikor megváltoztathatjuk.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Tárgy szerkesztése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'Ha egy tárgyat szerkeszteni szeretnénk, akkor húzzuk jobbra a kártyáját, majd a kék mezőre nyomva megjelenik egy ablak, ahol szerkeszthetjük a tárgy adatait.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Tanterv betöltése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A beállításokból lehetőségünk van egy adott tanterv tantárgyait betölteni, így nem nekünk kell az egészet beírni. Persze a betöltés után is szabadon módosíthatjuk a tárgyakat. A tantervek megtekintése gombra kattintva előjön egy lista a betölthető tantervekről. Válasszuk ki a kívánt tantervet, majd nyomjunk a Betöltés gombra. Vigyázat! Az új tanterv betöltésével törlődik az összes korábbi tárgyunk! (Ezért nem elég a listában rábökni egyre, meg is kell erősíteni.)',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Új félévek hozzáadása', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'Ha nem lenne elegendő félév alapból a program listájában, a félévek listéjénak alján található gombbal hozzá tudunk adni újabb féléveket a programhoz.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Hozzáadott félévek törlése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A beállításokból lehetőségünk van az általunk újonnan hozzáadott féléveket és az azokhoz felvett tárgyak adatait törölni. Ezzel a gombbal tehát a féléveket is töröljük a listából és a hozzájuk felvett tárgyakat is.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Tárgy(ak) törlése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'Ha egy tárgyat törölni szeretnénk, akkor húzzuk balra a kártyáját, majd a piros mezőre nyomva megjelenik egy ablak, ahol megerősíthetjük a törlést. Ha sok tárgyat szeretnénk törölni, ezek együttes törlését elvégezhetjük a beállítások menüből.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Tárgyak átrendezése', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'Tartsuk nyomva egy tárgy kártyáját, és húzzuk a kívánt pozícióba, így átrendezhetjük a tárgyaink sorrendjét.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText('Osztó értéke', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    'A beállítások menüben megadhatjuk, hogy kreditérték számításnál mennyivel osszon a program, például kollégiumba bekerüléshez, vagy ösztöndíjhez szükséges átlag számításakor ez hasznos lehet.',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  headerText(
+                      'Alkalmazás verziója', Theme.of(context).colorScheme.primary),
+                  descriptionText(
+                    '2.3.2.1',
+                  ),
+                ],
               ),
-              Divider(color: Colors.green,),
-              SizedBox(height: 20,),
-              Text(
-                'Kreditek száma',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Az oldal tetején a felvett kreditek összege látszik, alatta pedig a teljesítetteké. A teljesített kreditek száma alapvetően megegyezik a felvett kreditek számával, kivéve, ha egy tárgyra kapott jegy elégtelen.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Statisztikai kártyák',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Az oldal tetején látható színes kártyák közül a beállításokban kiválaszthatjuk, hogy melyiket szeretnénk megjeleníteni.',
-                style: TextStyle(
-                    fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Kreditindex a korábbi félévvel együtt',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Ez a kártya azt mutatja, hogy a kollégiumba kerüléshez számított átlag mennyi lesz a korábbi félévben megszerzett átlaggal együtt. Ez az információ a BME VIK-re járó kollégistáknak lehet releváns. Ez a kártya abban különbözik a többitől, hogy kattintható, ekkor megjelenik egy párbeszédablak, amiben beállíthatjuk a korábbi félévben megszerzett kreditindexünket. A Mentés gombra kattintva a program megjegyzi ezt az értéket, de bármikor módosíthatjuk a kártyára kattintva.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Új tárgy felvétele',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'A tantárgyak szöveg alatt található Új tárgy felvétele gomb megnyomása után egy párbeszédablak jelenik meg, amiben megadhatjuk a tárgy nevét és hogy hány kreditet ér (a tárgyra kapott jegyet később szerkeszthetjük). Sikeres hozzáadás esetén a Tantárgyak szekcióban a hozzáadás gomb felett jelennek meg a tárgyak kártyák formájában. Ha a gomb nem látszik, ne ijedjünkk meg, az oldal tartalma görgethető.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Jegyek módosítása',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'A tárgyak kártyáin lévő csúszka használatával módosíthatjuk az adott tárgyra kapott vagy elvárt jegyet. Ezzel egyidejűleg frissülnek a statisztikai kártyák adatai.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Tárgy megjelölése',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'A tárgyak kártyáin bal oldalon lévő könyvjelző ikonra bökve megjelölhetjük a tárgyat aszerint, hogy biztosak vagyunk-e az eredményben, vagy még várjuk a végkifejletet. Ilyenkor a tárgyhoz tartozó kártya elemei zöldből sárga, vagy sárgából zöld színre váltanak. Ezzel elkülöníthetjük azokat a tárgyakat, amik eredményében már biztosak vagyunk. Ezt bármikor megváltoztathatjuk.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Tárgy szerkesztése',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Ha egy tárgyat szerkeszteni szeretnénk, akkor húzzuk jobbra a kártyáját, majd a kék mezőre nyomva megjelenik egy ablak, ahol szerkeszthetjük a tárgy adatait.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Tárgy(ak) törlése',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Ha egy tárgyat törölni szeretnénk, akkor húzzuk balra a kártyáját, majd a piros mezőre nyomva megjelenik egy ablak, ahol megerősíthetjük a törlést. Ha sok tárgyat szeretnénk törölni, ezek együttes törlését elvégezhetjük a beállítások menüből.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Tárgyak átrendezése',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'Tartsuk nyomva egy tárgy kártyáját, és húzzuk a kívánt pozícióba, így átrendezhetjük a tárgyaink sorrendjét.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Osztó értéke',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                'A beállítások menüben megadhatjuk, hogy kreditérték számításnál mennyivel osszon a program, például kollégiumba bekerüléshez, vagy ösztöndíjhez szükséges átlag számításakor ez hasznos lehet.',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                'Alkalmazás verziója',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                '1.2.1.1',
-                style: TextStyle(
-                  fontSize: 17,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
