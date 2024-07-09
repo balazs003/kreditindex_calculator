@@ -14,19 +14,11 @@
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
     <div style="flex: 1 1 200px; text-align: center;">
         <img src="https://github.com/balazs003/kreditindex_calculator/assets/144109760/20049d6e-00ce-4b87-9af9-519f74da5482" width="200" style="border: 2px solid #ccc; border-radius: 10px;"/>
-        <p>Image 1</p>
-    </div>
-    <div style="flex: 1 1 200px; text-align: center;">
         <img src="https://github.com/balazs003/kreditindex_calculator/assets/144109760/59535882-4ab8-4825-a870-23b98399f6ce" width="200" style="border: 2px solid #ccc; border-radius: 10px;"/>
-        <p>Image 2</p>
     </div>
     <div style="flex: 1 1 200px; text-align: center;">
         <img src="https://github.com/balazs003/kreditindex_calculator/assets/144109760/f6a994cd-2113-49d2-80cf-6fc03e597eaf" width="200" style="border: 2px solid #ccc; border-radius: 10px;"/>
-        <p>Image 3</p>
-    </div>
-    <div style="flex: 1 1 200px; text-align: center;">
         <img src="https://github.com/balazs003/kreditindex_calculator/assets/144109760/bfdfe969-bad9-4214-b584-72f13c206fa0" width="200" style="border: 2px solid #ccc; border-radius: 10px;"/>
-        <p>Image 4</p>
     </div>
 </div>
 
