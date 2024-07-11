@@ -7,8 +7,7 @@
 </p>
 
 <p style="font-size: 18px;">
-    You can download the APK for Android phones here: 
-    <a href="https://drive.google.com/file/d/1Y6ftFfSJodEOtuVVP20zugRcvrFVqq3X/view?usp=drive_link" style="text-decoration: none; color: #1e90ff; font-weight: bold;">Download APK</a>
+    You can download the APK for Android phones from the Releases.
 </p>
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
