@@ -27,6 +27,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late TextEditingController _controller;
 
+  bool isLoading = false;
+
   int _creditDivisionNumber = 0;
   final int _initialSemesterCount = 11;
   int _semesterCount = 11;
@@ -56,6 +58,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _loadSettingsData() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final prefs = await SharedPreferences.getInstance();
 
     //loading divider value
@@ -77,6 +83,10 @@ class _SettingsPageState extends State<SettingsPage> {
     _showAverageCard = prefs.getBool('averageVisible') ?? true;
 
     await loadSemesterCount();
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void _saveSettingsData() async {
@@ -196,53 +206,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
                         'Megjelenítendő panelek:',
                         style: TextStyle(fontSize: 18),
                       ),
-                      SwitchListTile(
-                        title:
-                            const Text('Kreditindex az előző félévvel együtt'),
-                        value: _showSummarizedCreditIndexCard,
-                        onChanged: (value) {
-                          setState(() {
-                            _showSummarizedCreditIndexCard = value;
-                            _saveSettingsData();
-                          });
-                        },
-                      ),
-                      SwitchListTile(
-                        title: const Text('Kreditindex'),
-                        value: _showCreditIndexCard,
-                        onChanged: (value) {
-                          setState(() {
-                            _showCreditIndexCard = value;
-                            _saveSettingsData();
-                          });
-                        },
-                      ),
-                      SwitchListTile(
-                        title: const Text('Súlyozott kreditindex'),
-                        value: _showWeightedCreditIndexCard,
-                        onChanged: (value) {
-                          setState(() {
-                            _showWeightedCreditIndexCard = value;
-                            _saveSettingsData();
-                          });
-                        },
-                      ),
-                      SwitchListTile(
-                        title: const Text('Átlag'),
-                        value: _showAverageCard,
-                        onChanged: (value) {
-                          setState(() {
-                            _showAverageCard = value;
-                            _saveSettingsData();
-                          });
-                        },
-                      ),
+                      ...showSwitchListTiles(),
                     ],
                   ),
                 ),
@@ -526,6 +497,59 @@ class _SettingsPageState extends State<SettingsPage> {
         );
       },
     );
+  }
+
+  List<Widget> showSwitchListTiles() {
+    List<Widget> switchTiles = [
+      SwitchListTile(
+        title:
+        const Text('Kreditindex az előző félévvel együtt'),
+        value: _showSummarizedCreditIndexCard,
+        onChanged: (value) {
+          setState(() {
+            _showSummarizedCreditIndexCard = value;
+            _saveSettingsData();
+          });
+        },
+      ),
+      SwitchListTile(
+        title: const Text('Kreditindex'),
+        value: _showCreditIndexCard,
+        onChanged: (value) {
+          setState(() {
+            _showCreditIndexCard = value;
+            _saveSettingsData();
+          });
+        },
+      ),
+      SwitchListTile(
+        title: const Text('Súlyozott kreditindex'),
+        value: _showWeightedCreditIndexCard,
+        onChanged: (value) {
+          setState(() {
+            _showWeightedCreditIndexCard = value;
+            _saveSettingsData();
+          });
+        },
+      ),
+      SwitchListTile(
+        title: const Text('Átlag'),
+        value: _showAverageCard,
+        onChanged: (value) {
+          setState(() {
+            _showAverageCard = value;
+            _saveSettingsData();
+          });
+        },
+      ),
+    ];
+
+    List<Widget> progressIndicator = [
+      const SizedBox(width: double.infinity,),
+      const CircularProgressIndicator()
+    ];
+
+    return isLoading ? progressIndicator : switchTiles;
   }
 
   @override
