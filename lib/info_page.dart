@@ -180,7 +180,7 @@ class InfoPage extends StatelessWidget {
                   headerText(
                       'Alkalmazás verziója', Theme.of(context).colorScheme.primary),
                   descriptionText(
-                    '2.3.2.1',
+                    '2.3.2.2',
                   ),
                 ],
               ),
