@@ -161,7 +161,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
                         'Kreditindex számításnál használt osztó értéke:',
@@ -169,31 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           fontSize: 18,
                         ),
                       ),
-                      TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          errorText: _creditDivisionNumber <= 0
-                              ? '0-nál nagyobb érték kell'
-                              : null,
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                        ], // Only numbers can be entered
-                        onChanged: (value) {
-                          setState(() {
-                            // Update the errorText dynamically based on the current input
-                            if (value.isNotEmpty) {
-                              int parsedValue = int.tryParse(value) ?? 0;
-                              _creditDivisionNumber = parsedValue;
-                              context
-                                  .read<CreditDivisionNotifier>()
-                                  .setCreditDivisionNumber(
-                                      _creditDivisionNumber);
-                            }
-                          });
-                        },
-                      ),
+                      ...showCreditIndexDividerTextField(),
                     ],
                   ),
                 ),
@@ -280,8 +257,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(width: double.infinity,),
                       const Text(
                         'Tanterv betöltése',
                         style: TextStyle(
@@ -310,8 +289,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(width: double.infinity,),
                       const Text(
                         'Újonnan hozzáadott félév(ek) törlése',
                         style: TextStyle(
@@ -343,8 +324,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(width: double.infinity,),
                       const Text(
                         'Összes tantárgy törlése',
                         style: TextStyle(
@@ -497,6 +480,43 @@ class _SettingsPageState extends State<SettingsPage> {
         );
       },
     );
+  }
+
+  List<Widget> showCreditIndexDividerTextField() {
+    List<Widget> textField = [
+      TextField(
+        controller: _controller,
+        decoration: InputDecoration(
+          errorText: _creditDivisionNumber <= 0
+              ? '0-nál nagyobb érték kell'
+              : null,
+        ),
+        keyboardType: TextInputType.number,
+        inputFormatters: <TextInputFormatter>[
+          FilteringTextInputFormatter.digitsOnly,
+        ], // Only numbers can be entered
+        onChanged: (value) {
+          setState(() {
+            // Update the errorText dynamically based on the current input
+            if (value.isNotEmpty) {
+              int parsedValue = int.tryParse(value) ?? 0;
+              _creditDivisionNumber = parsedValue;
+              context
+                  .read<CreditDivisionNotifier>()
+                  .setCreditDivisionNumber(
+                  _creditDivisionNumber);
+            }
+          });
+        },
+      ),
+    ];
+
+    List<Widget> progressIndicator = [
+      const SizedBox(width: double.infinity,),
+      const CircularProgressIndicator()
+    ];
+
+    return isLoading ? progressIndicator : textField;
   }
 
   List<Widget> showSwitchListTiles() {
